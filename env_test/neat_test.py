@@ -9,7 +9,7 @@ import safety_gym
 import gym
 
 #ENVIRONMENT = 'Safexp-PointGoal1-v0'
-ENVIRONMENT = 'CartPole-v1'
+ENVIRONMENT = 'Ant-v2'
 
 class TestNeat:
     _episode_counter = 0
@@ -26,7 +26,9 @@ class TestNeat:
             obs = self.gym_env.reset()
             
             #print(obs)
-            #print(self.gym_env.action_space.sample())
+            #print(self.gym_env.action_space.low)
+            
+            
 
             fitness = 0
             while True:
@@ -34,8 +36,10 @@ class TestNeat:
                 #input()
 
                 action = net.activate(obs)
-
-                action = round(action[0])
+                
+                for i in range(len(action)):
+                    action[i] = (action[i]-0.5) * 2
+                #action = round(action[0])
 
                 obs, reward, done, hazards = self.gym_env.step(action) 
 
@@ -49,8 +53,19 @@ class TestNeat:
             self._episode_counter += 1
             #print(self._episode_counter)
             
-    def demo_best_game(self):
-        pass
+    def demo_best_net(self):
+        obs = self.gym_env.reset()
+
+        while True:
+                self.gym_env.render()
+                action = self.winner_net.activate(obs)
+
+                action = round(action[0])
+
+                obs, reward, done, hazards = self.gym_env.step(action) 
+                
+                if done:
+                    break
 
     def run(self, config_file):
         # Load configuration.
@@ -68,17 +83,17 @@ class TestNeat:
         p.add_reporter(neat.Checkpointer(5))
 
         # Run for up to 300 generations.
-        winner = p.run(self.eval_genomes, 300)
+        winner = p.run(self.eval_genomes, 150)
 
         # Display the winning genome.
         print('\nBest genome:\n{!s}'.format(winner))
 
         # Show output of the most fit genome against training data.
         print('\nOutput:')
-        winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+        self.winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
-        p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-        p.run(self.eval_genomes, 10)
+        
+
 
 
 if __name__ == '__main__':
@@ -90,4 +105,5 @@ if __name__ == '__main__':
     curr_env = TestNeat()
     curr_env.env_setup()
     curr_env.run(config_path)
+    curr_env.demo_best_net()
     curr_env.env_teardown()
