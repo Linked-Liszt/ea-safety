@@ -5,56 +5,80 @@
 from __future__ import print_function
 import os
 import neat
+import safety_gym
+import gym
 
-# 2-input XOR inputs and expected outputs.
-xor_inputs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
-xor_outputs = [   (0.0,),     (1.0,),     (1.0,),     (0.0,)]
+#ENVIRONMENT = 'Safexp-PointGoal1-v0'
+ENVIRONMENT = 'CartPole-v1'
 
+class TestNeat:
+    _episode_counter = 0
 
-def eval_genomes(genomes, config):
-    for genome_id, genome in genomes:
-        genome.fitness = 4.0
-        net = neat.nn.FeedForwardNetwork.create(genome, config)
-        for xi, xo in zip(xor_inputs, xor_outputs):
-            output = net.activate(xi)
-            genome.fitness -= (output[0] - xo[0]) ** 2
+    def env_setup(self):
+        self.gym_env = gym.make(ENVIRONMENT)
 
+    def env_teardown(self):
+        self.gym_env.close()
 
-def run(config_file):
-    # Load configuration.
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_file)
+    def eval_genomes(self, genomes, config):
+        for genome_id, genome in genomes:
+            net = neat.nn.FeedForwardNetwork.create(genome, config)    
+            obs = self.gym_env.reset()
+            
+            #print(obs)
+            #print(self.gym_env.action_space.sample())
 
-    # Create the population, which is the top-level object for a NEAT run.
-    p = neat.Population(config)
+            fitness = 0
+            while True:
+                #print(net.activate(obs))
+                #input()
 
-    # Add a stdout reporter to show progress in the terminal.
-    p.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))
+                action = net.activate(obs)
 
-    # Run for up to 300 generations.
-    winner = p.run(eval_genomes, 300)
+                action = round(action[0])
 
-    # Display the winning genome.
-    print('\nBest genome:\n{!s}'.format(winner))
+                obs, reward, done, hazards = self.gym_env.step(action) 
 
-    # Show output of the most fit genome against training data.
-    print('\nOutput:')
-    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    for xi, xo in zip(xor_inputs, xor_outputs):
-        output = winner_net.activate(xi)
-        print("input {!r}, expected output {!r}, got {!r}".format(xi, xo, output))
+                fitness += reward
+                
+                if done:
+                    break
+            
+            genome.fitness = fitness
 
-    node_names = {-1:'A', -2: 'B', 0:'A XOR B'}
-    #visualize.draw_net(config, winner, True, node_names=node_names)
-    #visualize.plot_stats(stats, ylog=False, view=True)
-    #visualize.plot_species(stats, view=True)
+            self._episode_counter += 1
+            #print(self._episode_counter)
+            
+    def demo_best_game(self):
+        pass
 
-    p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    p.run(eval_genomes, 10)
+    def run(self, config_file):
+        # Load configuration.
+        config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                            neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                            config_file)
+
+        # Create the population, which is the top-level object for a NEAT run.
+        p = neat.Population(config)
+
+        # Add a stdout reporter to show progress in the terminal.
+        p.add_reporter(neat.StdOutReporter(True))
+        stats = neat.StatisticsReporter()
+        p.add_reporter(stats)
+        p.add_reporter(neat.Checkpointer(5))
+
+        # Run for up to 300 generations.
+        winner = p.run(self.eval_genomes, 300)
+
+        # Display the winning genome.
+        print('\nBest genome:\n{!s}'.format(winner))
+
+        # Show output of the most fit genome against training data.
+        print('\nOutput:')
+        winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+
+        p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
+        p.run(self.eval_genomes, 10)
 
 
 if __name__ == '__main__':
@@ -63,4 +87,7 @@ if __name__ == '__main__':
     # current working directory.
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config-feedforward.ini')
-    run(config_path)
+    curr_env = TestNeat()
+    curr_env.env_setup()
+    curr_env.run(config_path)
+    curr_env.env_teardown()
