@@ -1,0 +1,19 @@
+{
+    "layers": [
+        {
+            "type": "Linear",
+            "params": [5, 5], 
+            "kwargs": {"bias":true}
+        }, 
+        {
+            "type": "ReLU",
+            "params": [], 
+            "kwargs": {}
+        }, 
+        {
+            "type": "Linear",
+            "params": [5, 5], 
+            "kwargs": {"bias":false}
+        }
+    ]
+}
