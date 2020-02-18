@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from .neural_net import CosyneNet as cn
+from  cosyne_base.neural_net import CosyneNet as cn
 
 
 class Cosyne(object):

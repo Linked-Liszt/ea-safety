@@ -1,5 +1,5 @@
-from neural_net import CosyneNet as cn
-from cosyne import Cosyne as cs
+from cosyne_base.neural_net import CosyneNet as cn
+from cosyne_base.cosyne import Cosyne as cs
 import json
 import numpy as np
 import sys
