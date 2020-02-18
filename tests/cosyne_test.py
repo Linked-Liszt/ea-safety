@@ -8,6 +8,10 @@ class TestCosyne(unittest.TestCase):
 
     def setUp(self):
         self.config_dict = {
+            "cosyne": {
+                "pop_size": 10
+            },
+
             "neural_net": {
                 "layers": [
                     {
@@ -53,3 +57,7 @@ class TestCosyne(unittest.TestCase):
         test_cs._insert_params(test_flat_param_arr)
         self.assertTrue(torch.all(torch.eq(test_cs.nn.layers[0].weight, torch.zeros([5, 5]))))
 
+    def test_init_subpopulations(self):
+        test_cs = cs(self.config_dict)
+        self.assertEqual(np.shape(test_cs.subpopulations), (10, 60))
+        self.assertEqual(np.shape(test_cs.fitnesses), (10, 60))

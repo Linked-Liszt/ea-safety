@@ -7,8 +7,19 @@ from  cosyne_base.neural_net import CosyneNet as cn
 class Cosyne(object):
     def __init__(self, config):
         self.nn = cn(config['neural_net'])
+        self.cosyne_config = config['cosyne']
         self._get_param_shape()
+        self._init_subpopulations()
 
+
+    def _init_subpopulations(self):
+        self.subpopulations = np.random.rand(
+                                self.cosyne_config['pop_size'], 
+                                self.num_parameters)
+        self.fitnesses = np.zeros(
+                            (self.cosyne_config['pop_size'], self.num_parameters)
+                            )
+        
 
     def _insert_params(self, flat_params):
         reshaped_params = self._reconstruct_params(flat_params)
@@ -21,6 +32,7 @@ class Cosyne(object):
         for param in parameters:
             self.param_sizes.append(param.size())
             self.param_flattened_sizes.append(param.view(-1, 1).size()[0])
+        self.num_parameters = np.sum(self.param_flattened_sizes)
 
     
     def _reconstruct_params(self, flat_params):
@@ -31,6 +43,8 @@ class Cosyne(object):
         #Take the flattened params and reshape them into original sizes
         reshaped_params = []
         for i in range(len(split_params)):
-            reshaped_params.append(np.reshape(split_params[i], self.param_sizes[i]))
+            reshaped_params.append(
+                    np.reshape(split_params[i], 
+                    self.param_sizes[i]))
         
         return reshaped_params

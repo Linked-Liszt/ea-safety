@@ -1,4 +1,8 @@
 {
+    "cosyne": {
+        "pop_size": 10
+    },
+    
     "neural_net": {
         "layers": [
             {
