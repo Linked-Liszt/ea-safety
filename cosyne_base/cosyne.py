@@ -9,6 +9,11 @@ class Cosyne(object):
         self.nn = cn(config['neural_net'])
         self._get_param_shape()
 
+
+    def _insert_params(self, flat_params):
+        reshaped_params = self._reconstruct_params(flat_params)
+        self.nn.insert_parameters(reshaped_params)
+
     def _get_param_shape(self):
         parameters = self.nn.extract_parameters()
         self.param_sizes = []

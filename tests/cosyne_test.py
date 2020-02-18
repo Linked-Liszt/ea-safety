@@ -47,5 +47,9 @@ class TestCosyne(unittest.TestCase):
         expected_flat_sizes = [25, 5, 25, 5]
         self.assertEqual(expected_flat_sizes, test_cs.param_flattened_sizes)
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_insert_params(self):
+        test_cs = cs(self.config_dict)
+        test_flat_param_arr = np.zeros(np.sum(test_cs.param_flattened_sizes))
+        test_cs._insert_params(test_flat_param_arr)
+        self.assertTrue(torch.all(torch.eq(test_cs.nn.layers[0].weight, torch.zeros([5, 5]))))
+

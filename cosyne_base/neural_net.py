@@ -26,8 +26,14 @@ class CosyneNet(torch.nn.Module):
 
         return parameters
 
-    def insert_parameters(self, weights):
-        pass
+    def insert_parameters(self, params):
+        params_idx = 0
+        for layer in self.layers:
+            state_dict = layer.state_dict()
+            for name, parameter in layer.named_parameters():
+                state_dict[name] = torch.from_numpy(params[params_idx])
+                params_idx += 1
+            layer.load_state_dict(state_dict)
 
     """
     Begin Inner Facing Methods
