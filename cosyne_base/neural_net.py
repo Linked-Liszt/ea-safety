@@ -33,7 +33,7 @@ class CosyneNet(torch.nn.Module):
     Begin Inner Facing Methods
     """
     def __add_layers(self):
-        for layer_config in config["layers"]:
+        for layer_config in self.config["layers"]:
             self.layers.append(self.__add_layer(
                 layer_config['type'], 
                 layer_config['params'],
