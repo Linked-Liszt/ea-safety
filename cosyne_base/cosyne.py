@@ -4,4 +4,10 @@ import torch.nn as nn
 
 
 class Cosyne(object):
-    pass
+    def __init__(self, config):
+        pass
+
+    def __get_weight_shape(self):
+        pass
+
+    

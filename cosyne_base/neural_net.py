@@ -22,7 +22,15 @@ class CosyneNet(torch.nn.Module):
             x = layer(x)
         return x
 
-    def extract_params(self):
+    def extract_weights(self):
+        weights = []
+        for layer in self.layers:
+            if hasattr(layer, 'weight'):
+                weights.append(layer.weight)
+
+        return weights
+
+    def insert_weights(self, weights):
         pass
 
     """
