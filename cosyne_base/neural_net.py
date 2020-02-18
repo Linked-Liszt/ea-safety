@@ -7,14 +7,10 @@ import torch.nn as nn
 class CosyneNet(torch.nn.Module):
     def __init__(self, config):
         super().__init__()
+        self.config = config
         self.layers = nn.ModuleList()
 
-        for layer_config in config["layers"]:
-            self.layers.append(self.__add_layer(
-                layer_config['type'], 
-                layer_config['params'],
-                layer_config['kwargs']))
-
+        self.__add_layers()
         
 
     def forward(self, x):
@@ -22,20 +18,26 @@ class CosyneNet(torch.nn.Module):
             x = layer(x)
         return x
 
-    def extract_weights(self):
-        weights = []
+    def extract_parameters(self):
+        parameters = []
         for layer in self.layers:
-            if hasattr(layer, 'weight'):
-                weights.append(layer.weight)
+            for name, parameter in layer.named_parameters():
+                parameters.append(parameter)
 
-        return weights
+        return parameters
 
-    def insert_weights(self, weights):
+    def insert_parameters(self, weights):
         pass
 
     """
     Begin Inner Facing Methods
     """
+    def __add_layers(self):
+        for layer_config in config["layers"]:
+            self.layers.append(self.__add_layer(
+                layer_config['type'], 
+                layer_config['params'],
+                layer_config['kwargs']))
     
     def __add_layer(self, layer_type, layer_params, layer_kwargs):
         #Finds the pytorch relevant function and calls it with params and kwargs

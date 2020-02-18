@@ -16,4 +16,4 @@ test_input = torch.from_numpy(np.random.rand(5)).float()
 #print(test_cn)
 #print(test_cn.forward(test_input))
 
-print(test_cn.extract_weights())
+print(test_cn.extract_parameters())
