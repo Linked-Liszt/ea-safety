@@ -12,10 +12,27 @@ class Cosyne(object):
         self._get_param_shape()
         self._init_subpopulations()
 
-
+    #eval_network takes the NN as a param and returns fitness
     def run(self, eval_network):
-        for param_index in range(self.cosyne_config['pop_size']):
-           self._construct_network(param_index)
+        for gen_idx in range(self.cosyne_config['gen_count']):
+            for param_index in range(self.cosyne_config['pop_size']):
+                self._construct_network(param_index)
+                fitness = eval_network(self.nn)
+                self.fitnesses[:,param_index] = fitness
+
+            self._print_info(gen_idx)
+
+
+
+    def _print_info(self, gen):
+        best_fitness = np.max(self.fitnesses[0])
+        avg_fitness = np.mean(self.fitnesses[0])
+        med_fitness = np.median(self.fitnesses[0])
+        std_fitness = np.std(self.fitnesses[0])
+        msg = f'Best Fitness: {best_fitness:.2f}\tMedian: {med_fitness:.2f}'
+        msg += f'\nAvg: {avg_fitness:.2f}\tSTD: {std_fitness:.2f}'
+        msg += '\n\n'
+        print(msg)
 
 
     def _recombination(self):
@@ -32,8 +49,11 @@ class Cosyne(object):
 
             parents = np.flip(sorted_pop)[:self.cosyne_config['parent_count']]
 
-            for _ in range(self.cosyne_config['recomb_count']):
+            for replace_idx in range(self.cosyne_config['recomb_count']):
                 new_value = self._mate_mutate(parents)
+                sorted_fitnesses[replace_idx] = new_value
+
+            self.subpopulations[param_index] = sorted_fitnesses
 
 
     def _mate_mutate(self, parents):

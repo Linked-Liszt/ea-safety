@@ -12,7 +12,8 @@ class TestCosyne(unittest.TestCase):
                 "pop_size": 10,
                 "parent_count": 4,
                 "recomb_count": 4,
-                "mate_mutate_ratio": 0.5
+                "mate_mutate_ratio": 0.5,
+                "gen_count": 5
 
             },
 
@@ -80,9 +81,23 @@ class TestCosyne(unittest.TestCase):
         test_input = np.random.rand(5)
         test_cs.nn.forward(torch.from_numpy(test_input).float())
 
-    def test_recombination_smoke_test(self):
+    def test_smoke_recombination_test(self):
         test_cs = cs(self.config_dict)
         test_cs._recombination()
         test_cs._construct_network(0)
         test_input = np.random.rand(5)
         test_cs.nn.forward(torch.from_numpy(test_input).float())
+
+    def test_smoke_recombination_output_sizes(self):
+        test_cs = cs(self.config_dict)
+        test_cs._recombination()
+        self.assertEqual(np.shape(test_cs.subpopulations), (60, 10))
+        self.assertEqual(np.shape(test_cs.fitnesses), (60, 10))
+
+    
+    def dummy_eval(self, dummy_param):
+        return 1.0
+
+    def test_smoke_run(self):
+        test_cs = cs(self.config_dict)
+        test_cs.run(self.dummy_eval)
