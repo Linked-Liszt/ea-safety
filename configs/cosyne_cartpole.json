@@ -1,10 +1,11 @@
 {
     "cosyne": {
         "pop_size": 10,
-        "parent_count": 4,
+        "parent_count": 3,
         "recomb_count": 5,
-        "mate_mutate_ratio": 0.9,
-        "gen_count": 50
+        "mate_mutate_ratio": 0.2,
+        "gen_count": 40,
+        "perm_mod": 0.8
 
     },
 
@@ -24,6 +25,11 @@
                 "type": "Linear",
                 "params": [5, 5], 
                 "kwargs": {"bias":false}
+            },
+            {
+                "type": "ReLU",
+                "params": [], 
+                "kwargs": {}
             }, 
             {
                 "type": "Linear",

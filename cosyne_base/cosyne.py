@@ -46,6 +46,7 @@ class Cosyne(object):
         for param_index in range(self.num_parameters):
 
             sorted_indices = np.argsort(self.fitnesses[param_index])
+           
             sorted_pop = np.take_along_axis(
                             self.subpopulations[param_index],
                             sorted_indices, 0)
@@ -61,7 +62,33 @@ class Cosyne(object):
                 new_value = self._mate_mutate(parents)
                 sorted_pop[replace_idx] = new_value
 
+            sorted_pop = self._permutate(sorted_pop, sorted_fitnesses)
+
             self.subpopulations[param_index] = sorted_pop
+
+    def _permutate(self, population, fitnesses):
+        permutate_markers = np.zeros(len(population))
+
+        min_fit = np.min(fitnesses)
+        max_fit = np.max(fitnesses)
+        range_fit = max_fit - min_fit + 0.0001
+
+        # Consider vectorization with numpy
+        for pop_idx in range(len(population)):
+            prob_permutate = 1 - (np.sqrt((fitnesses[pop_idx] - min_fit + 0.001)/range_fit))
+            
+            if random.uniform(0, 1) < self.cosyne_config['perm_mod'] * prob_permutate:
+                permutate_markers[pop_idx] = 1
+
+        #Returns tuple
+        perm_indicies = np.where(permutate_markers == 1)[0]
+        values = np.take(population, perm_indicies, 0)
+        np.random.shuffle(values)
+
+        for i in range(len(perm_indicies)):
+            population[perm_indicies[i]] = values[i]
+
+        return population
 
     def _mate_mutate(self, parents):
         if random.uniform(0, 1) < self.cosyne_config['mate_mutate_ratio']:

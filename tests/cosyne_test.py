@@ -3,6 +3,7 @@ import json
 import numpy as np
 import torch
 from cosyne_base.cosyne import Cosyne as cs
+import copy
 
 class TestCosyne(unittest.TestCase):
 
@@ -13,7 +14,8 @@ class TestCosyne(unittest.TestCase):
                 "parent_count": 4,
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
-                "gen_count": 5
+                "gen_count": 5, 
+                "perm_mod": 0.4
 
             },
 
@@ -94,6 +96,13 @@ class TestCosyne(unittest.TestCase):
         self.assertEqual(np.shape(test_cs.subpopulations), (60, 10))
         self.assertEqual(np.shape(test_cs.fitnesses), (60, 10))
 
+    def test_permutation_preserved_elements(self):
+        test_cs = cs(self.config_dict)
+        population = test_cs.subpopulations[0]
+        output = test_cs._permutate(copy.deepcopy(population), test_cs.fitnesses[0])
+        population = np.sort(population)
+        output = np.sort(output)
+        self.assertTrue(np.allclose(population, output))
     
     def dummy_eval(self, dummy_param):
         return 1.0
