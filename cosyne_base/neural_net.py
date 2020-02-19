@@ -31,7 +31,7 @@ class CosyneNet(torch.nn.Module):
         for layer in self.layers:
             state_dict = layer.state_dict()
             for name, parameter in layer.named_parameters():
-                state_dict[name] = torch.from_numpy(params[params_idx])
+                state_dict[name] = torch.from_numpy(params[params_idx]).double()
                 params_idx += 1
             layer.load_state_dict(state_dict)
 

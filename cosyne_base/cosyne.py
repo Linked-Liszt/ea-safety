@@ -14,12 +14,16 @@ class Cosyne(object):
 
     def _init_subpopulations(self):
         self.subpopulations = np.random.rand(
-                                self.cosyne_config['pop_size'], 
-                                self.num_parameters)
+                                self.num_parameters,
+                                self.cosyne_config['pop_size']
+                                )
         self.fitnesses = np.zeros(
-                            (self.cosyne_config['pop_size'], self.num_parameters)
+                            (self.num_parameters, self.cosyne_config['pop_size'])
                             )
-        
+    
+    def _construct_network(self, param_index):
+        flat_params = self.subpopulations[:,param_index]
+        self._insert_params(flat_params)
 
     def _insert_params(self, flat_params):
         reshaped_params = self._reconstruct_params(flat_params)

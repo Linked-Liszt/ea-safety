@@ -59,5 +59,19 @@ class TestCosyne(unittest.TestCase):
 
     def test_init_subpopulations(self):
         test_cs = cs(self.config_dict)
-        self.assertEqual(np.shape(test_cs.subpopulations), (10, 60))
-        self.assertEqual(np.shape(test_cs.fitnesses), (10, 60))
+        self.assertEqual(np.shape(test_cs.subpopulations), (60, 10))
+        self.assertEqual(np.shape(test_cs.fitnesses), (60, 10))
+
+    def test_construct_network(self):
+        test_cs = cs(self.config_dict)
+        test_cs._construct_network(0)
+        first_25_params = test_cs.subpopulations[:,0][:25]
+        first_25_params = first_25_params.reshape(5, 5)
+        actual_tensor = test_cs.nn.layers[0].weight.data.numpy()
+        self.assertTrue(np.allclose(first_25_params, actual_tensor))
+
+    def test_forward_pass_after_construction(self):
+        test_cs = cs(self.config_dict)
+        test_cs._construct_network(0)
+        test_input = np.random.rand(5)
+        test_cs.nn.forward(torch.from_numpy(test_input).float())
