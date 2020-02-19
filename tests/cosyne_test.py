@@ -9,7 +9,11 @@ class TestCosyne(unittest.TestCase):
     def setUp(self):
         self.config_dict = {
             "cosyne": {
-                "pop_size": 10
+                "pop_size": 10,
+                "parent_count": 4,
+                "recomb_count": 4,
+                "mate_mutate_ratio": 0.5
+
             },
 
             "neural_net": {
@@ -72,6 +76,13 @@ class TestCosyne(unittest.TestCase):
 
     def test_forward_pass_after_construction(self):
         test_cs = cs(self.config_dict)
+        test_cs._construct_network(0)
+        test_input = np.random.rand(5)
+        test_cs.nn.forward(torch.from_numpy(test_input).float())
+
+    def test_recombination_smoke_test(self):
+        test_cs = cs(self.config_dict)
+        test_cs._recombination()
         test_cs._construct_network(0)
         test_input = np.random.rand(5)
         test_cs.nn.forward(torch.from_numpy(test_input).float())

@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import random
 from  cosyne_base.neural_net import CosyneNet as cn
 
 
@@ -12,17 +13,54 @@ class Cosyne(object):
         self._init_subpopulations()
 
 
+    def run(self, eval_network):
+        for param_index in range(self.cosyne_config['pop_size']):
+           self._construct_network(param_index)
+
+
+    def _recombination(self):
+        for param_index in range(self.num_parameters):
+
+            sorted_indices = np.argsort(self.fitnesses[param_index])
+            sorted_pop = np.take_along_axis(
+                            self.subpopulations[param_index],
+                            sorted_indices, 0)
+
+            sorted_fitnesses = np.take_along_axis(
+                            self.fitnesses[param_index],
+                            sorted_indices, 0)
+
+            parents = np.flip(sorted_pop)[:self.cosyne_config['parent_count']]
+
+            for _ in range(self.cosyne_config['recomb_count']):
+                new_value = self._mate_mutate(parents)
+
+
+    def _mate_mutate(self, parents):
+        if random.uniform(0, 1) < self.cosyne_config['mate_mutate_ratio']:
+            return self._mutate(parents)
+        else:
+            return self._mate(parents)
+
+
+    def _mutate(self, parents):
+        new_val =  np.random.choice(parents) + np.random.normal(0, 0.2)
+        return max(0.0, min(1.0, new_val)) #constrain to 0 and 1
+
+    def _mate(self, parents):
+        return np.mean(np.random.choice(parents, 2))
+
+
     def _init_subpopulations(self):
         self.subpopulations = np.random.rand(
                                 self.num_parameters,
-                                self.cosyne_config['pop_size']
-                                )
-        self.fitnesses = np.zeros(
-                            (self.num_parameters, self.cosyne_config['pop_size'])
-                            )
-    
-    def _construct_network(self, param_index):
-        flat_params = self.subpopulations[:,param_index]
+                                self.cosyne_config['pop_size'])
+
+        self.fitnesses = np.zeros((self.num_parameters, 
+                                    self.cosyne_config['pop_size']))
+
+    def _construct_network(self, pop_index):
+        flat_params = self.subpopulations[:,pop_index]
         self._insert_params(flat_params)
 
     def _insert_params(self, flat_params):
