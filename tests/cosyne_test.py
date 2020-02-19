@@ -81,7 +81,7 @@ class TestCosyne(unittest.TestCase):
         test_input = np.random.rand(5)
         test_cs.nn.forward(torch.from_numpy(test_input).float())
 
-    def test_smoke_recombination_test(self):
+    def test_smoke_recombination(self):
         test_cs = cs(self.config_dict)
         test_cs._recombination()
         test_cs._construct_network(0)

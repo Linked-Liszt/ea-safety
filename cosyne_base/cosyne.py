@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import random
 from  cosyne_base.neural_net import CosyneNet as cn
+import copy
 
 
 class Cosyne(object):
@@ -11,6 +12,7 @@ class Cosyne(object):
         self.cosyne_config = config['cosyne']
         self._get_param_shape()
         self._init_subpopulations()
+        self.best_fitness = -1
 
     #eval_network takes the NN as a param and returns fitness
     def run(self, eval_network):
@@ -18,12 +20,16 @@ class Cosyne(object):
             for param_index in range(self.cosyne_config['pop_size']):
                 self._construct_network(param_index)
                 fitness = eval_network(self.nn)
+                self._save_best_nn(fitness)
                 self.fitnesses[:,param_index] = fitness
             self._recombination()
 
             self._print_info(gen_idx)
 
-
+    def _save_best_nn(self, fitness):
+        if fitness >= self.best_fitness:
+            self.best_nn = copy.deepcopy(self.nn)
+            self.best_fitness = fitness
 
     def _print_info(self, gen):
         best_fitness = np.max(self.fitnesses[0])
