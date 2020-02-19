@@ -19,6 +19,7 @@ class Cosyne(object):
                 self._construct_network(param_index)
                 fitness = eval_network(self.nn)
                 self.fitnesses[:,param_index] = fitness
+            self._recombination()
 
             self._print_info(gen_idx)
 
@@ -49,12 +50,12 @@ class Cosyne(object):
 
             parents = np.flip(sorted_pop)[:self.cosyne_config['parent_count']]
 
+
             for replace_idx in range(self.cosyne_config['recomb_count']):
                 new_value = self._mate_mutate(parents)
-                sorted_fitnesses[replace_idx] = new_value
+                sorted_pop[replace_idx] = new_value
 
-            self.subpopulations[param_index] = sorted_fitnesses
-
+            self.subpopulations[param_index] = sorted_pop
 
     def _mate_mutate(self, parents):
         if random.uniform(0, 1) < self.cosyne_config['mate_mutate_ratio']:

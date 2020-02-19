@@ -1,0 +1,40 @@
+{
+    "cosyne": {
+        "pop_size": 10,
+        "parent_count": 4,
+        "recomb_count": 3,
+        "mate_mutate_ratio": 0.5,
+        "gen_count": 50
+
+    },
+
+    "neural_net": {
+        "layers": [
+            {
+                "type": "Linear",
+                "params": [4, 10], 
+                "kwargs": {"bias":true}
+            }, 
+            {
+                "type": "ReLU",
+                "params": [], 
+                "kwargs": {}
+            }, 
+            {
+                "type": "Linear",
+                "params": [10, 10], 
+                "kwargs": {"bias":true}
+            }, 
+            {
+                "type": "ReLU",
+                "params": [], 
+                "kwargs": {}
+            },
+            {
+                "type": "Linear",
+                "params": [10, 2], 
+                "kwargs": {"bias":true}
+            }
+        ]
+    }
+}
