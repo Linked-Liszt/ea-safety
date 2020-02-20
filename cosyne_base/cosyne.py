@@ -14,7 +14,7 @@ class Cosyne(object):
         self._get_param_shape()
         self._init_subpopulations()
         self.best_fitness = -math.inf
-        self.data_list = []
+        self.log = []
 
     #eval_network takes the NN as a param and returns fitness
     def run(self, eval_network):
@@ -43,11 +43,12 @@ class Cosyne(object):
         data_dict['fit_mean'] = np.mean(self.fitnesses[0])
         data_dict['fit_med'] = np.median(self.fitnesses[0])
         data_dict['fit_std'] = np.std(self.fitnesses[0])
-        self.data_list.append(data_dict)
-        
+        self.log.append(data_dict)
+
+    #TODO: Consder saving best insdie of the cosyne class. 
 
     def _print_info(self, gen):
-        curr_data_dict = self.data_list[-1]
+        curr_data_dict = self.log[-1]
         msg = f"Best Fitness: {curr_data_dict['fit_best']:.2f}\tMedian: {curr_data_dict['fit_mean']:.2f}"
         msg += f"\nAvg: {curr_data_dict['fit_std']:.2f}\tSTD: {curr_data_dict['fit_std']:.2f}"
         msg += '\n\n'

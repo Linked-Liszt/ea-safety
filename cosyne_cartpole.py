@@ -50,6 +50,7 @@ def save_best_network(nn):
     save_dict = {}
     save_dict['env'] = ENVIRONMENT
     save_dict['nn'] = nn
+    save_dict['log'] = nn.log
     pickle.dump(save_dict, open('output_nets/cartpole.p', 'wb'))
 
 #print(gym_env.action_space)
