@@ -46,11 +46,11 @@ def demo_best_net(nn):
     print(f"Demo Fitness: {fitness}")
 
 
-def save_best_network(nn):
+def save_best_network(nn, log):
     save_dict = {}
     save_dict['env'] = ENVIRONMENT
     save_dict['nn'] = nn
-    save_dict['log'] = nn.log
+    save_dict['log'] = log
     pickle.dump(save_dict, open('output_nets/cartpole.p', 'wb'))
 
 #print(gym_env.action_space)
@@ -66,4 +66,4 @@ cosyne.run(eval_cartpole)
 print(cosyne.best_fitness)
 demo_best_net(cosyne.best_nn)
 gym_env.close()
-save_best_network(cosyne.best_nn)
+save_best_network(cosyne.best_nn, cosyne.log)

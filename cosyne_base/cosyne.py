@@ -49,8 +49,9 @@ class Cosyne(object):
 
     def _print_info(self, gen):
         curr_data_dict = self.log[-1]
-        msg = f"Best Fitness: {curr_data_dict['fit_best']:.2f}\tMedian: {curr_data_dict['fit_mean']:.2f}"
-        msg += f"\nAvg: {curr_data_dict['fit_std']:.2f}\tSTD: {curr_data_dict['fit_std']:.2f}"
+        msg = f"Gen: {curr_data_dict['gen']}"
+        msg += f"\nBest Fitness: {curr_data_dict['fit_best']:.2f}\tMedian: {curr_data_dict['fit_mean']:.2f}"
+        msg += f"\nAvg: {curr_data_dict['fit_mean']:.2f}\tSTD: {curr_data_dict['fit_std']:.2f}"
         msg += '\n\n'
         print(msg)
 
