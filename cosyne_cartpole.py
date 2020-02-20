@@ -3,6 +3,7 @@ import gym
 import torch
 import json
 import sys
+import pickle
 
 ENVIRONMENT = 'CartPole-v1'
 gym_env = gym.make(ENVIRONMENT)
@@ -44,6 +45,13 @@ def demo_best_net(nn):
             
     print(f"Demo Fitness: {fitness}")
 
+
+def save_best_network(nn):
+    save_dict = {}
+    save_dict['env'] = ENVIRONMENT
+    save_dict['nn'] = nn
+    pickle.dump(save_dict, open('output_nets/cartpole.p', 'wb'))
+
 #print(gym_env.action_space)
 #print(gym_env.observation_space)
 #print(gym_env.action_space.sample())
@@ -57,3 +65,4 @@ cosyne.run(eval_cartpole)
 print(cosyne.best_fitness)
 demo_best_net(cosyne.best_nn)
 gym_env.close()
+save_best_network(cosyne.best_nn)
