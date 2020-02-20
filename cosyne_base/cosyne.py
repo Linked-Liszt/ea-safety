@@ -16,7 +16,8 @@ class Cosyne(object):
 
     #eval_network takes the NN as a param and returns fitness
     def run(self, eval_network):
-        for gen_idx in range(self.cosyne_config['gen_count']):
+        self.gen_idx = 0
+        while self._termination():
             for param_index in range(self.cosyne_config['pop_size']):
                 self._construct_network(param_index)
                 fitness = eval_network(self.nn)
@@ -24,7 +25,8 @@ class Cosyne(object):
                 self.fitnesses[:,param_index] = fitness
             self._recombination()
 
-            self._print_info(gen_idx)
+            self._print_info(self.gen_idx)
+            self.gen_idx += 1
 
     def _save_best_nn(self, fitness):
         if fitness >= self.best_fitness:
@@ -41,6 +43,11 @@ class Cosyne(object):
         msg += '\n\n'
         print(msg)
 
+    def _termination(self):
+        if self.cosyne_config['terminate']['type'] == 'fit':
+            return self.best_fitness < self.cosyne_config['terminate']['param']
+        elif self.cosyne_config['terminate']['type'] == 'gen':
+            return self.gen_idx < int(self.cosyne_config['terminate']['param'])
 
     def _recombination(self):
         for param_index in range(self.num_parameters):

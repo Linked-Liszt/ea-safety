@@ -14,8 +14,12 @@ class TestCosyne(unittest.TestCase):
                 "parent_count": 4,
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
-                "gen_count": 5, 
-                "perm_mod": 0.4
+                "perm_mod": 0.4,
+                "terminate":
+                {
+                    "type": "gen",
+                    "param": 5
+                }
 
             },
 
@@ -106,6 +110,13 @@ class TestCosyne(unittest.TestCase):
     
     def dummy_eval(self, dummy_param):
         return 1.0
+
+    def test_smoke_fitness_term(self):
+        custom_dict = copy.deepcopy(self.config_dict)
+        custom_dict['cosyne']['terminate']['type'] = 'gen'
+        custom_dict['cosyne']['terminate']['param'] = -5
+        test_cs = cs(custom_dict)
+        test_cs.run(self.dummy_eval)
 
     def test_smoke_run(self):
         test_cs = cs(self.config_dict)
