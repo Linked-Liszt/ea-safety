@@ -4,6 +4,7 @@ import torch.nn as nn
 import random
 from  cosyne_base.neural_net import CosyneNet as cn
 import copy
+import math
 
 
 class Cosyne(object):
@@ -12,7 +13,8 @@ class Cosyne(object):
         self.cosyne_config = config['cosyne']
         self._get_param_shape()
         self._init_subpopulations()
-        self.best_fitness = -1
+        self.best_fitness = -math.inf
+        self.data_list = []
 
     #eval_network takes the NN as a param and returns fitness
     def run(self, eval_network):
@@ -25,6 +27,7 @@ class Cosyne(object):
                 self.fitnesses[:,param_index] = fitness
             self._recombination()
 
+            self._save_data()
             self._print_info(self.gen_idx)
             self.gen_idx += 1
 
@@ -33,13 +36,20 @@ class Cosyne(object):
             self.best_nn = copy.deepcopy(self.nn)
             self.best_fitness = fitness
 
+    def _save_data(self):
+        data_dict = {}
+        data_dict['gen'] = self.gen_idx
+        data_dict['fit_best'] = np.max(self.fitnesses[0])
+        data_dict['fit_mean'] = np.mean(self.fitnesses[0])
+        data_dict['fit_med'] = np.median(self.fitnesses[0])
+        data_dict['fit_std'] = np.std(self.fitnesses[0])
+        self.data_list.append(data_dict)
+        
+
     def _print_info(self, gen):
-        best_fitness = np.max(self.fitnesses[0])
-        avg_fitness = np.mean(self.fitnesses[0])
-        med_fitness = np.median(self.fitnesses[0])
-        std_fitness = np.std(self.fitnesses[0])
-        msg = f'Best Fitness: {best_fitness:.2f}\tMedian: {med_fitness:.2f}'
-        msg += f'\nAvg: {avg_fitness:.2f}\tSTD: {std_fitness:.2f}'
+        curr_data_dict = self.data_list[-1]
+        msg = f"Best Fitness: {curr_data_dict['fit_best']:.2f}\tMedian: {curr_data_dict['fit_mean']:.2f}"
+        msg += f"\nAvg: {curr_data_dict['fit_std']:.2f}\tSTD: {curr_data_dict['fit_std']:.2f}"
         msg += '\n\n'
         print(msg)
 
