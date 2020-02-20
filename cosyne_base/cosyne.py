@@ -5,6 +5,7 @@ import random
 from  cosyne_base.neural_net import CosyneNet as cn
 import copy
 import math
+import pickle
 
 
 class Cosyne(object):
@@ -45,7 +46,12 @@ class Cosyne(object):
         data_dict['fit_std'] = np.std(self.fitnesses[0])
         self.log.append(data_dict)
 
-    #TODO: Consder saving best insdie of the cosyne class. 
+    def export_data(self):
+        save_dict = {}
+        save_dict['env'] = self.cosyne_config['env']
+        save_dict['nn'] = self.best_nn
+        save_dict['log'] = self.log
+        pickle.dump(save_dict, open(self.cosyne_config['log_path'], 'wb')) 
 
     def _print_info(self, gen):
         curr_data_dict = self.log[-1]
