@@ -149,7 +149,6 @@ class Cosyne(object):
             bound = np.sqrt(1 / self.layer_sizes[layer_idx])
             species = np.random.uniform(low=(-1 * bound), high=bound,
                                         size=self.cosyne_config['pop_size'])
-            print(species)
             self.subpopulations[i] = species
 
         self.fitnesses = np.zeros((self.num_parameters, 
