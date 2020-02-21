@@ -5,6 +5,7 @@ import json
 import sys
 import pickle
 
+REPEAT_COUNT = 1
 
 config_path = sys.argv[1]
 
@@ -25,7 +26,7 @@ elif ENVIRONMENT == 'Ant-v2':
 def eval_gym(nn):
     fitness = 0.01
     
-    for i in range(5):
+    for i in range(REPEAT_COUNT):
         obs = GYM_ENV.reset()
         if fitness > 500.0 * i:
             while True:       
@@ -35,9 +36,9 @@ def eval_gym(nn):
                     #argmax
                     action = action.max(0)[1].item()
                 elif ENV_SWITCHER == 1:
-                    action_arr = action.detach().numpy()
-                    action_arr -= 0.5
-                    action_arr *= 2
+                    action = action.detach().numpy()
+                    action -= 0.5
+                    action *= 2
 
                 obs, reward, done, hazards = GYM_ENV.step(action) 
                 fitness += reward
@@ -58,9 +59,9 @@ def demo_best_net(nn):
                 #argmax
             action = action.max(0)[1].item()
         elif ENV_SWITCHER == 1:
-            action_arr = action.detach().numpy()
-            action_arr -= 0.5
-            action_arr *= 2
+            action = action.detach().numpy()
+            action -= 0.5
+            action *= 2
 
         obs, reward, done, hazards = GYM_ENV.step(action) 
         fitness += reward

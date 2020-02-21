@@ -1,7 +1,7 @@
 {
     "cosyne": {
-        "env": "BipedalWalker-v3'",
-        "log_path": "output_nets/walker.p",
+        "env": "Ant-v2",
+        "log_path": "output_nets/ant.p",
         "pop_size": 10,
         "parent_count": 3,
         "recomb_count": 4,
