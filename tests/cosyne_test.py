@@ -3,6 +3,7 @@ import json
 import numpy as np
 import torch
 from cosyne_base.cosyne import Cosyne as cs
+from cosyne_base.neural_net import CosyneNet as cn
 import copy
 
 class TestCosyne(unittest.TestCase):
@@ -121,3 +122,108 @@ class TestCosyne(unittest.TestCase):
     def test_smoke_run(self):
         test_cs = cs(self.config_dict)
         test_cs.run(self.dummy_eval)
+
+class TestCosyneDiverseNet(unittest.TestCase):
+
+    def setUp(self):
+        self.config_dict = {
+            "cosyne": {
+                "pop_size": 10,
+                "parent_count": 4,
+                "recomb_count": 4,
+                "mate_mutate_ratio": 0.5,
+                "perm_mod": 0.4,
+                "terminate":
+                {
+                    "type": "gen",
+                    "param": 5
+                }
+
+            },
+
+            "neural_net": {
+                "layers": [
+                    {
+                        "type": "Linear",
+                        "params": [5, 50], 
+                        "kwargs": {"bias":True}
+                    }, 
+                    {
+                        "type": "ReLU",
+                        "params": [], 
+                        "kwargs": {}
+                    }, 
+                    {
+                        "type": "Linear",
+                        "params": [50, 5], 
+                        "kwargs": {"bias":True}
+                    }
+                ]
+            }
+        }
+
+    def test_init_sizes_diff(self):
+        test_cs = cs(self.config_dict)
+        five_bound = 0.448
+        fifty_bound = 0.142
+        param_split = 300
+        for i in range(len(test_cs.subpopulations)):
+            subpop = test_cs.subpopulations[i]
+            print(subpop)
+            if i < param_split:
+                self.assertTrue((subpop < five_bound).all())
+                self.assertTrue((subpop > (-1 * five_bound)).all())
+
+            else:
+                self.assertTrue((subpop < fifty_bound).all())
+                self.assertTrue((subpop > (-1 * fifty_bound)).all())
+
+
+
+class TestCosyneNet(unittest.TestCase):
+
+    def setUp(self):
+        self.config_dict = {
+            "cosyne": {
+                "pop_size": 10,
+                "parent_count": 4,
+                "recomb_count": 4,
+                "mate_mutate_ratio": 0.5,
+                "perm_mod": 0.4,
+                "terminate":
+                {
+                    "type": "gen",
+                    "param": 5
+                }
+
+            },
+
+            "neural_net": {
+                "layers": [
+                    {
+                        "type": "Linear",
+                        "params": [5, 6], 
+                        "kwargs": {"bias":True}
+                    }, 
+                    {
+                        "type": "ReLU",
+                        "params": [], 
+                        "kwargs": {}
+                    }, 
+                    {
+                        "type": "Linear",
+                        "params": [6, 5], 
+                        "kwargs": {"bias":True}
+                    }
+                ]
+            }
+        }
+
+    def test_extract_layer_sizes(self):
+        test_net = cn(self.config_dict['neural_net'])
+        test_sizes = test_net.extract_layer_sizes()
+        expected_sizes = [5, 5, 6, 6]
+        print(test_sizes)
+        self.assertEqual(test_sizes, expected_sizes)
+
+

@@ -26,6 +26,13 @@ class CosyneNet(torch.nn.Module):
 
         return parameters
 
+    def extract_layer_sizes(self):
+        input_sizes = []
+        for layer in self.layers:
+            for name, parameter in layer.named_parameters():
+                input_sizes.append(layer.in_features)
+        return input_sizes
+
     def insert_parameters(self, params):
         params_idx = 0
         for layer in self.layers:

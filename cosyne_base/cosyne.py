@@ -131,9 +131,20 @@ class Cosyne(object):
 
 
     def _init_subpopulations(self):
-        self.subpopulations = np.random.rand(
-                                self.num_parameters,
-                                self.cosyne_config['pop_size'])
+        #Use Xavier Initialization sqrt(1/size[l-1])
+
+        self.subpopulations = np.empty(
+                                [self.num_parameters,
+                                self.cosyne_config['pop_size']])
+        
+        for i in range(len(self.subpopulations)):
+            layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
+            layer_idx = np.searchsorted(layer_indicies, i, side='left')
+            bound = np.sqrt(1 / self.layer_sizes[layer_idx])
+            species = np.random.uniform(low=(-1 * bound), high=bound,
+                                        size=self.cosyne_config['pop_size'])
+            print(species)
+            self.subpopulations[i] = species
 
         self.fitnesses = np.zeros((self.num_parameters, 
                                     self.cosyne_config['pop_size']))
@@ -154,6 +165,7 @@ class Cosyne(object):
             self.param_sizes.append(param.size())
             self.param_flattened_sizes.append(param.view(-1, 1).size()[0])
         self.num_parameters = np.sum(self.param_flattened_sizes)
+        self.layer_sizes = self.nn.extract_layer_sizes()
 
     
     def _reconstruct_params(self, flat_params):
