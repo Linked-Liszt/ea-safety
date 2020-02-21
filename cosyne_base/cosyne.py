@@ -84,7 +84,7 @@ class Cosyne(object):
 
 
             for replace_idx in range(self.cosyne_config['recomb_count']):
-                new_value = self._mate_mutate(parents)
+                new_value = self._mate_mutate(parents, param_index)
                 sorted_pop[replace_idx] = new_value
 
             sorted_pop = self._permutate(sorted_pop, sorted_fitnesses)
@@ -115,18 +115,24 @@ class Cosyne(object):
 
         return population
 
-    def _mate_mutate(self, parents):
+    def _mate_mutate(self, parents, param_idx):
         if random.uniform(0, 1) < self.cosyne_config['mate_mutate_ratio']:
-            return self._mutate(parents)
+            return self._mutate(parents, param_idx)
         else:
-            return self._mate(parents)
+            return self._mate(parents, param_idx)
 
 
-    def _mutate(self, parents):
-        new_val =  np.random.choice(parents) + np.random.normal(0, 0.2)
-        return max(0.0, min(1.0, new_val)) #constrain to 0 and 1
+    def _mutate(self, parents, param_idx):
+        layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
+        layer_idx = np.searchsorted(layer_indicies, param_idx, side='left')
+        bound = np.sqrt(1 / self.layer_sizes[layer_idx])
 
-    def _mate(self, parents):
+        creep_rate = bound * self.cosyne_config['mutate_creep_rate']
+
+        new_val =  np.random.choice(parents) + np.random.normal(0, creep_rate)
+        return max((-1 * bound), min(bound, new_val)) #constrain to bounds
+
+    def _mate(self, parents, param_idx):
         return np.mean(np.random.choice(parents, 2))
 
 

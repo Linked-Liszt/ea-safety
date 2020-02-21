@@ -6,6 +6,7 @@
         "parent_count": 3,
         "recomb_count": 4,
         "mate_mutate_ratio": 0.6,
+        "mutate_creep_rate": 0.4,
         "perm_mod": 0.8,
 
         "terminate":

@@ -16,6 +16,7 @@ class TestCosyne(unittest.TestCase):
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
                 "perm_mod": 0.4,
+                "mutate_creep_rate": 0.2,
                 "terminate":
                 {
                     "type": "gen",
@@ -133,6 +134,7 @@ class TestCosyneDiverseNet(unittest.TestCase):
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
                 "perm_mod": 0.4,
+                "mutate_creep_rate": 0.2,
                 "terminate":
                 {
                     "type": "gen",
@@ -190,6 +192,7 @@ class TestCosyneNet(unittest.TestCase):
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
                 "perm_mod": 0.4,
+                "mutate_creep_rate": 0.2,
                 "terminate":
                 {
                     "type": "gen",
