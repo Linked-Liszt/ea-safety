@@ -11,7 +11,7 @@
         "terminate":
         {
             "type": "gen",
-            "param": 5
+            "param": 50
         }
 
     },
@@ -24,7 +24,7 @@
                 "kwargs": {"bias":true}
             }, 
             {
-                "type": "ReLU",
+                "type": "Sigmoid",
                 "params": [], 
                 "kwargs": {}
             }, 
@@ -34,7 +34,7 @@
                 "kwargs": {"bias":true}
             },
             {
-                "type": "ReLU",
+                "type": "Sigmoid",
                 "params": [], 
                 "kwargs": {}
             }, 
@@ -42,6 +42,11 @@
                 "type": "Linear",
                 "params": [30, 8], 
                 "kwargs": {"bias":false}
+            },
+            {
+                "type": "Sigmoid",
+                "params": [], 
+                "kwargs": {}
             }
         ]
     }
