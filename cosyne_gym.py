@@ -5,6 +5,11 @@ import json
 import sys
 import pickle
 
+try:
+    import safety_gym
+except ModuleNotFoundError:
+    pass
+
 REPEAT_COUNT = 1
 
 config_path = sys.argv[1]
@@ -21,7 +26,7 @@ if ENVIRONMENT == 'CartPole-v1':
     ENV_SWITCHER = 0
     REPEAT_COUNT = 5
     MIN_SCORE = 500.0
-elif ENVIRONMENT == 'Ant-v2':
+elif ENVIRONMENT == 'Ant-v2' or ENVIRONMENT == 'Safexp-PointGoal1-v0':
     ENV_SWITCHER = 1
 
 
@@ -75,9 +80,9 @@ def demo_best_net(nn):
 
 
 
-#print(GYM_ENV.action_space)
-#print(GYM_ENV.observation_space)
-#print(GYM_ENV.action_space.sample())
+print(GYM_ENV.action_space)
+print(GYM_ENV.observation_space)
+print(GYM_ENV.action_space.sample())
 
 
 cosyne = cs(config_dict)

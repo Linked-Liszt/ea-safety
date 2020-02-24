@@ -37,6 +37,9 @@ class Cosyne(object):
             self.best_nn = copy.deepcopy(self.nn)
             self.best_fitness = fitness
 
+    # TODO: Implement perodic saving
+
+
     def _save_data(self):
         data_dict = {}
         data_dict['gen'] = self.gen_idx
