@@ -8,6 +8,8 @@
         "mate_mutate_ratio": 0.6,
         "mutate_creep_rate": 0.5,
         "perm_mod": 0.8,
+        "checkpoint_path": "checkpoints/point",
+        "checkpoint_interval": 10,
 
         "terminate":
         {

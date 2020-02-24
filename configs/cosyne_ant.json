@@ -8,8 +8,11 @@
         "mate_mutate_ratio": 0.6,
         "mutate_creep_rate": 0.2,
         "perm_mod": 0.8,
+        "checkpoint_path": "checkpoints/ant",
+        "checkpoint_interval": 10,
 
         "terminate":
+
         {
             "type": "gen",
             "param": 50

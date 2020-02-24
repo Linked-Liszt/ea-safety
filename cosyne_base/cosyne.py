@@ -30,6 +30,7 @@ class Cosyne(object):
 
             self._save_data()
             self._print_info(self.gen_idx)
+            self._export_checkpoint()
             self.gen_idx += 1
 
     def _save_best_nn(self, fitness):
@@ -37,7 +38,10 @@ class Cosyne(object):
             self.best_nn = copy.deepcopy(self.nn)
             self.best_fitness = fitness
 
-    # TODO: Implement perodic saving
+    def _export_checkpoint(self):
+        if self.gen_idx % self.cosyne_config['checkpoint_interval'] == 0 and self.gen_idx != 0:
+            checkpoint_count = self.gen_idx / self.cosyne_config['checkpoint_interval']
+            self.export_data(self.cosyne_config['checkpoint_path'] + '_' + str(int(checkpoint_count)) + '.p')
 
 
     def _save_data(self):
@@ -49,12 +53,14 @@ class Cosyne(object):
         data_dict['fit_std'] = np.std(self.fitnesses[0])
         self.log.append(data_dict)
 
-    def export_data(self):
+    def export_data(self, data_path=None):
+        if data_path is None:
+            data_path = self.cosyne_config['log_path']
         save_dict = {}
         save_dict['env'] = self.cosyne_config['env']
         save_dict['nn'] = self.best_nn
         save_dict['log'] = self.log
-        pickle.dump(save_dict, open(self.cosyne_config['log_path'], 'wb')) 
+        pickle.dump(save_dict, open(data_path, 'wb')) 
 
     def _print_info(self, gen):
         curr_data_dict = self.log[-1]

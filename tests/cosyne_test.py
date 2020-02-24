@@ -12,11 +12,14 @@ class TestCosyne(unittest.TestCase):
         self.config_dict = {
             "cosyne": {
                 "pop_size": 10,
+                "env": "unittest",
                 "parent_count": 4,
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
                 "perm_mod": 0.4,
                 "mutate_creep_rate": 0.2,
+                "checkpoint_path": "checkpoints/unit_test",
+                "checkpoint_interval": 100,
                 "terminate":
                 {
                     "type": "gen",
@@ -130,11 +133,14 @@ class TestCosyneDiverseNet(unittest.TestCase):
         self.config_dict = {
             "cosyne": {
                 "pop_size": 10,
+                "env": "unittest",
                 "parent_count": 4,
                 "recomb_count": 4,
                 "mate_mutate_ratio": 0.5,
                 "perm_mod": 0.4,
                 "mutate_creep_rate": 0.2,
+                "checkpoint_path": "checkpoints/unit_test",
+                "checkpoint_interval": 100,
                 "terminate":
                 {
                     "type": "gen",
@@ -171,7 +177,7 @@ class TestCosyneDiverseNet(unittest.TestCase):
         param_split = 300
         for i in range(len(test_cs.subpopulations)):
             subpop = test_cs.subpopulations[i]
-            print(subpop)
+            #print(subpop)
             if i < param_split:
                 self.assertTrue((subpop < five_bound).all())
                 self.assertTrue((subpop > (-1 * five_bound)).all())
@@ -226,7 +232,7 @@ class TestCosyneNet(unittest.TestCase):
         test_net = cn(self.config_dict['neural_net'])
         test_sizes = test_net.extract_layer_sizes()
         expected_sizes = [5, 5, 6, 6]
-        print(test_sizes)
+        #print(test_sizes)
         self.assertEqual(test_sizes, expected_sizes)
 
 
