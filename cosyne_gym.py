@@ -10,7 +10,6 @@ try:
 except ModuleNotFoundError:
     pass
 
-REPEAT_COUNT = 1
 
 config_path = sys.argv[1]
 
@@ -28,6 +27,8 @@ if ENVIRONMENT == 'CartPole-v1':
     MIN_SCORE = 500.0
 elif ENVIRONMENT == 'Ant-v2' or ENVIRONMENT == 'Safexp-PointGoal1-v0':
     ENV_SWITCHER = 1
+    REPEAT_COUNT = 1
+    MIN_SCORE = 999999
 
 
 def eval_gym(nn):
