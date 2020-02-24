@@ -1,0 +1,64 @@
+{
+    "cosyne": {
+        "env": "Safexp-PointGoal1-v0",
+        "log_path": "output_nets/point.p",
+        "pop_size": 20,
+        "parent_count": 5,
+        "recomb_count": 9,
+        "mate_mutate_ratio": 0.6,
+        "mutate_creep_rate": 0.5,
+        "perm_mod": 0.8,
+
+        "terminate":
+        {
+            "type": "gen",
+            "param": 300
+        }
+
+    },
+
+    "neural_net": {
+        "layers": [
+            {
+                "type": "Linear",
+                "params": [60, 100], 
+                "kwargs": {"bias":true}
+            }, 
+            {
+                "type": "Sigmoid",
+                "params": [], 
+                "kwargs": {}
+            }, 
+            {
+                "type": "Linear",
+                "params": [100, 100], 
+                "kwargs": {"bias":true}
+            },
+            {
+                "type": "Sigmoid",
+                "params": [], 
+                "kwargs": {}
+            },
+            {
+                "type": "Linear",
+                "params": [100, 100], 
+                "kwargs": {"bias":true}
+            },
+            {
+                "type": "Sigmoid",
+                "params": [], 
+                "kwargs": {}
+            }, 
+            {
+                "type": "Linear",
+                "params": [100, 2], 
+                "kwargs": {"bias":false}
+            },
+            {
+                "type": "Sigmoid",
+                "params": [], 
+                "kwargs": {}
+            }
+        ]
+    }
+}

@@ -1,4 +1,5 @@
 from cosyne_base.cosyne import Cosyne as cs
+import safety_gym
 import gym
 import torch
 import json
@@ -19,7 +20,7 @@ GYM_ENV = gym.make(ENVIRONMENT)
 #For performance
 if ENVIRONMENT == 'CartPole-v1':
     ENV_SWITCHER = 0
-elif ENVIRONMENT == 'Ant-v2':
+elif ENVIRONMENT == 'Ant-v2' or ENVIRONMENT == 'Safexp-PointGoal1-v0':
     ENV_SWITCHER = 1
 
 
@@ -73,9 +74,9 @@ def demo_best_net(nn):
 
 
 
-#print(GYM_ENV.action_space)
-#print(GYM_ENV.observation_space)
-#print(GYM_ENV.action_space.sample())
+print(GYM_ENV.action_space)
+print(GYM_ENV.observation_space)
+print(GYM_ENV.action_space.sample())
 
 
 cosyne = cs(config_dict)
