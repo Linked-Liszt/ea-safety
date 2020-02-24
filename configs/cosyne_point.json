@@ -9,7 +9,7 @@
         "mutate_creep_rate": 0.5,
         "perm_mod": 0.8,
         "checkpoint_path": "checkpoints/point",
-        "checkpoint_interval": 10,
+        "checkpoint_interval": 20,
 
         "terminate":
         {
@@ -23,43 +23,18 @@
         "layers": [
             {
                 "type": "Linear",
-                "params": [60, 100], 
+                "params": [60, 30], 
                 "kwargs": {"bias":true}
             }, 
             {
-                "type": "Sigmoid",
+                "type": "ReLU",
                 "params": [], 
                 "kwargs": {}
             }, 
             {
                 "type": "Linear",
-                "params": [100, 100], 
-                "kwargs": {"bias":true}
-            },
-            {
-                "type": "Sigmoid",
-                "params": [], 
-                "kwargs": {}
-            },
-            {
-                "type": "Linear",
-                "params": [100, 100], 
-                "kwargs": {"bias":true}
-            },
-            {
-                "type": "Sigmoid",
-                "params": [], 
-                "kwargs": {}
-            }, 
-            {
-                "type": "Linear",
-                "params": [100, 2], 
+                "params": [30, 2], 
                 "kwargs": {"bias":false}
-            },
-            {
-                "type": "Sigmoid",
-                "params": [], 
-                "kwargs": {}
             }
         ]
     }

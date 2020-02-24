@@ -15,7 +15,7 @@ nn_path = sys.argv[1]
 nn_dict = pickle.load(open(nn_path, 'rb'))
 
 ENVIRONMENT = nn_dict['env']
-gym_env = gym.make(ENVIRONMENT)
+GYM_ENV = gym.make(ENVIRONMENT)
 
 
 #For performance
@@ -26,13 +26,14 @@ elif ENVIRONMENT == 'Ant-v2' or ENVIRONMENT == 'Safexp-PointGoal1-v0':
 
 
 def demo_best_net(nn):
-    obs = gym_env.reset()
+    obs = GYM_ENV.reset()
     curr_obs = obs
     fitness = 0
     while True:
-        gym_env.render()
+        GYM_ENV.render()
 
         action = nn.forward(torch.from_numpy(obs).float())
+        print(action)
 
         if ENV_SWITCHER == 0:
             #argmax
@@ -43,8 +44,10 @@ def demo_best_net(nn):
             action *= 2
 
         #print(action)
-        obs, reward, done, hazards = gym_env.step(action) 
+        obs, reward, done, hazards = GYM_ENV.step(action) 
         fitness += reward
+        print(action)
+        print('\n')
 
         obs_diff = np.sum(np.absolute(obs-curr_obs))
         curr_obs = obs
@@ -56,6 +59,11 @@ def demo_best_net(nn):
             
     print(f"Demo Fitness: {fitness}")
 
+print(GYM_ENV.action_space)
+print(GYM_ENV.observation_space)
+print(GYM_ENV.action_space.high)
+print(GYM_ENV.action_space.low)
+print(GYM_ENV.action_space.sample())
 
 
 demo_best_net(nn_dict['nn'])
