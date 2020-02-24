@@ -19,6 +19,8 @@ GYM_ENV = gym.make(ENVIRONMENT)
 #For performance
 if ENVIRONMENT == 'CartPole-v1':
     ENV_SWITCHER = 0
+    REPEAT_COUNT = 5
+    MIN_SCORE = 500.0
 elif ENVIRONMENT == 'Ant-v2':
     ENV_SWITCHER = 1
 
@@ -28,7 +30,7 @@ def eval_gym(nn):
     
     for i in range(REPEAT_COUNT):
         obs = GYM_ENV.reset()
-        if fitness > 500.0 * i:
+        if fitness > MIN_SCORE * i:
             while True:       
                 action = nn.forward(torch.from_numpy(obs).float())
 
