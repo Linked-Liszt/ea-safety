@@ -24,9 +24,9 @@ class Cosyne(object):
             for param_index in range(self.cosyne_config['pop_size']):
                 self._construct_network(param_index)
                 fitness = eval_network(self.nn)
-                self._save_best_nn(fitness)
                 self.fitnesses[:,param_index] = fitness
             self._recombination()
+            self._save_best_nn(fitness)
 
             self._save_data()
             self._print_info(self.gen_idx)
@@ -88,17 +88,19 @@ class Cosyne(object):
             sorted_fitnesses = np.take_along_axis(
                             self.fitnesses[param_index],
                             sorted_indices, 0)
-
-            parents = np.flip(sorted_pop)[:self.cosyne_config['parent_count']]
-
-
-            for replace_idx in range(self.cosyne_config['recomb_count']):
-                new_value = self._mate_mutate(parents, param_index)
-                sorted_pop[replace_idx] = new_value
-
-            sorted_pop = self._permutate(sorted_pop, sorted_fitnesses)
-
             self.subpopulations[param_index] = sorted_pop
+
+        parents = self.subpopulations[:,(-1 * self.cosyne_config['parent_count']):]
+        parents = parents.T
+
+
+        for replace_idx in range(self.cosyne_config['recomb_count']):
+            new_member = self._mate_mutate(parents, param_index)
+            for i in range(self.num_parameters):
+                self.subpopulations[i][replace_idx] = new_member[i]
+        
+        for param_index in range(self.num_parameters):
+            self.subpopulations[param_index] = self._permutate(self.subpopulations[param_index], sorted_fitnesses)
 
     def _permutate(self, population, fitnesses):
         permutate_markers = np.zeros(len(population))
@@ -126,23 +128,28 @@ class Cosyne(object):
 
     def _mate_mutate(self, parents, param_idx):
         if random.uniform(0, 1) < self.cosyne_config['mate_mutate_ratio']:
-            return self._mutate(parents, param_idx)
+            return self._mutate(parents)
         else:
-            return self._mate(parents, param_idx)
+            return self._mate(parents)
 
 
-    def _mutate(self, parents, param_idx):
-        layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
-        layer_idx = np.searchsorted(layer_indicies, param_idx, side='left')
-        bound = np.sqrt(1 / self.layer_sizes[layer_idx])
+    def _mutate(self, parents):
+        mutated_member = parents[np.random.choice(parents.shape[0])]
+        for param_idx in range(self.num_parameters):
 
-        creep_rate = bound * self.cosyne_config['mutate_creep_rate']
+            layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
+            layer_idx = np.searchsorted(layer_indicies, param_idx, side='left')
+            bound = np.sqrt(1 / self.layer_sizes[layer_idx])
 
-        new_val =  np.random.choice(parents) + np.random.normal(0, creep_rate)
-        return max((-1 * bound), min(bound, new_val)) #constrain to bounds
+            creep_rate = bound * self.cosyne_config['mutate_creep_rate']
 
-    def _mate(self, parents, param_idx):
-        return np.mean(np.random.choice(parents, 2))
+            
+            mutated_member[param_idx] =  mutated_member[param_idx] + np.random.normal(0, creep_rate)
+        return mutated_member
+
+    def _mate(self, parents):
+        parent_idxs = np.random.choice(parents.shape[0], 2, replace=False)
+        return np.mean([parents[parent_idxs[0]], parents[parent_idxs[1]]], axis=0)
 
 
     def _init_subpopulations(self):

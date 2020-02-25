@@ -21,7 +21,7 @@ GYM_ENV = gym.make(ENVIRONMENT)
 #For performance
 if ENVIRONMENT == 'CartPole-v1':
     ENV_SWITCHER = 0
-elif ENVIRONMENT == 'Ant-v2' or ENVIRONMENT == 'Safexp-PointGoal1-v0':
+else:
     ENV_SWITCHER = 1
 
 
@@ -40,11 +40,12 @@ def demo_best_net(nn):
             action = action.max(0)[1].item()
         elif ENV_SWITCHER == 1:
             action = action.detach().numpy()
-            action -= 0.5
-            action *= 2
+            #action -= 0.5
+            #action *= 2
 
         #print(action)
-        obs, reward, done, hazards = GYM_ENV.step(action) 
+        obs, reward, done, hazards = GYM_ENV.step(action)
+        print(reward) 
         fitness += reward
         print(action)
         print('\n')
@@ -64,6 +65,5 @@ print(GYM_ENV.observation_space)
 print(GYM_ENV.action_space.high)
 print(GYM_ENV.action_space.low)
 print(GYM_ENV.action_space.sample())
-
 
 demo_best_net(nn_dict['nn'])

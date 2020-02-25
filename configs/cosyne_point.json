@@ -35,7 +35,12 @@
                 "type": "Linear",
                 "params": [30, 2], 
                 "kwargs": {"bias":false}
-            }
+            },
+            {
+                "type": "Tanh",
+                "params": [], 
+                "kwargs": {}
+            },
         ]
     }
 }

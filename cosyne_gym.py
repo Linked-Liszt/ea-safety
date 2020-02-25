@@ -25,7 +25,7 @@ if ENVIRONMENT == 'CartPole-v1':
     ENV_SWITCHER = 0
     REPEAT_COUNT = 5
     MIN_SCORE = 500.0
-elif ENVIRONMENT == 'Ant-v2' or ENVIRONMENT == 'Safexp-PointGoal1-v0':
+else:
     ENV_SWITCHER = 1
     REPEAT_COUNT = 1
     MIN_SCORE = 999999
@@ -45,8 +45,8 @@ def eval_gym(nn):
                     action = action.max(0)[1].item()
                 elif ENV_SWITCHER == 1:
                     action = action.detach().numpy()
-                    action -= 0.5
-                    action *= 2
+                    #action -= 0.5
+                    #action *= 2
 
                 obs, reward, done, hazards = GYM_ENV.step(action) 
                 fitness += reward
@@ -68,8 +68,8 @@ def demo_best_net(nn):
             action = action.max(0)[1].item()
         elif ENV_SWITCHER == 1:
             action = action.detach().numpy()
-            action -= 0.5
-            action *= 2
+            #action -= 0.5
+            #action *= 2
 
         obs, reward, done, hazards = GYM_ENV.step(action) 
         fitness += reward
