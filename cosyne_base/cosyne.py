@@ -55,7 +55,7 @@ class Cosyne(object):
 
     def export_data(self, data_path=None):
         if data_path is None:
-            data_path = self.cosyne_config['log_path']
+            data_path = self.cosyne_config['log_path'] + '.p'
         save_dict = {}
         save_dict['env'] = self.cosyne_config['env']
         save_dict['nn'] = self.best_nn

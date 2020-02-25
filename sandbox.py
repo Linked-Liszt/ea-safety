@@ -1,4 +1,6 @@
 import scipy.fftpack as fftp
+import torch
+import torch.nn as nn
 import numpy as np
 
 
@@ -23,3 +25,14 @@ print(fftp.idct([0.5, -0.5, 0,  0, 0 ], n = 10))
 arr = [[1,2,3],[4,5,6]]
 np_arr = np.array(arr)
 print(np_arr.T.T)
+test_torch = torch.rand((3,3))
+linear_layer = nn.Linear(10, 5)
+
+arr = [[1,2],[3,4]]
+np_arr = np.array(arr)
+
+print(test_torch.type())
+for name, parameter in linear_layer.named_parameters():
+    print(parameter)
+    print(parameter.type())
+print(torch.from_numpy(np_ar).type())

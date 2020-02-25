@@ -1,7 +1,7 @@
 {
     "cosyne": {
         "env": "Safexp-PointGoal1-v0",
-        "log_path": "output_nets/point.p",
+        "log_path": "output_nets/point",
         "pop_size": 20,
         "parent_count": 5,
         "recomb_count": 9,
