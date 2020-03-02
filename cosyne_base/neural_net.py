@@ -14,9 +14,26 @@ class CosyneNet(torch.nn.Module):
         
 
     def forward(self, x):
+        lstm_count = 0
         for layer in self.layers:
-            x = layer(x)
+            if isinstance(layer, nn.LSTM):
+                x, states = layer(x, (self.hidden_states[lstm_count], self.cell_states[lstm_count]))
+                self.hidden_states[lstm_count] = states[0]
+                self.cell_states[lstm_count] = states[1]
+            else:
+                x = layer(x)
         return x
+
+    def init_recurrent_states(self):
+        self.hidden_states = []
+        self.cell_states = []
+        for layer in self.layers:
+            if isinstance(layer, nn.LSTM):
+                num_layers = layer.num_layers
+                batch = 1
+                hidden_size = layer.hidden_size
+                self.hidden_states.append(torch.zeros(num_layers, batch, hidden_size)) 
+                self.cell_states.append(torch.zeros(num_layers, batch, hidden_size)) 
 
     def extract_parameters(self):
         parameters = []
@@ -30,7 +47,10 @@ class CosyneNet(torch.nn.Module):
         input_sizes = []
         for layer in self.layers:
             for name, parameter in layer.named_parameters():
-                input_sizes.append(layer.in_features)
+                if isinstance(layer, nn.LSTM):
+                    input_sizes.append(layer.hidden_size)
+                else:
+                    input_sizes.append(layer.in_features)
         return input_sizes
 
     def insert_parameters(self, params):

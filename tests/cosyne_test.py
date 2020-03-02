@@ -171,6 +171,22 @@ class TestCosyneDiverseNet(unittest.TestCase):
             }
         }
     
+    def test_init_sizes_diff(self):
+        test_cs = cs(self.config_dict)
+        five_bound = 0.448
+        fifty_bound = 0.142
+        param_split = 300
+        for i in range(len(test_cs.subpopulations)):
+            subpop = test_cs.subpopulations[i]
+            #print(subpop)
+            if i < param_split:
+                self.assertTrue((subpop < five_bound).all())
+                self.assertTrue((subpop > (-1 * five_bound)).all())
+
+            else:
+                self.assertTrue((subpop < fifty_bound).all())
+                self.assertTrue((subpop > (-1 * fifty_bound)).all())
+
 
 
 
@@ -272,5 +288,20 @@ class TestCosyneNet(unittest.TestCase):
         expected_sizes = [5, 5, 6, 6]
         #print(test_sizes)
         self.assertEqual(test_sizes, expected_sizes)
+
+    def test_lstm_extract_layer_sizes(self):
+        custom_dict = copy.deepcopy(self.config_dict)
+        custom_dict['neural_net']['layers'].append(
+            {
+                "type": "LSTM",
+                "params": [5, 10, 2], 
+                "kwargs": {"bias":True}
+            }
+        )
+
+        test_net = cn(custom_dict['neural_net'])
+        expected_layers = [5, 5, 6, 6, 10, 10, 10, 10, 10, 10, 10, 10]
+        self.assertEqual(expected_layers, test_net.extract_layer_sizes())
+
 
 

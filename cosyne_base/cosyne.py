@@ -23,6 +23,7 @@ class Cosyne(object):
         while self._termination():
             for param_index in range(self.cosyne_config['pop_size']):
                 self._construct_network(param_index)
+                self.nn.init_recurrent_states()
                 fitness = eval_network(self.nn)
                 self.fitnesses[:,param_index] = fitness
             self._recombination()
@@ -42,6 +43,12 @@ class Cosyne(object):
         if self.gen_idx % self.cosyne_config['checkpoint_interval'] == 0 and self.gen_idx != 0:
             checkpoint_count = self.gen_idx / self.cosyne_config['checkpoint_interval']
             self.export_data(self.cosyne_config['checkpoint_path'] + '_' + str(int(checkpoint_count)) + '.p')
+
+
+    def _calculate_xavier_bounds(self, param_index):
+        layer_idx = np.searchsorted(self.layer_indicies, param_index, side='left')
+        bound = np.sqrt(1 / self.layer_sizes[layer_idx])
+        return bound
 
 
     def _save_data(self):
@@ -137,9 +144,7 @@ class Cosyne(object):
         mutated_member = parents[np.random.choice(parents.shape[0])]
         for param_idx in range(self.num_parameters):
 
-            layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
-            layer_idx = np.searchsorted(layer_indicies, param_idx, side='left')
-            bound = np.sqrt(1 / self.layer_sizes[layer_idx])
+            bound = self._calculate_xavier_bounds(param_idx)
 
             creep_rate = bound * self.cosyne_config['mutate_creep_rate']
 
@@ -160,9 +165,7 @@ class Cosyne(object):
                                 self.cosyne_config['pop_size']])
         
         for i in range(len(self.subpopulations)):
-            layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
-            layer_idx = np.searchsorted(layer_indicies, i, side='left')
-            bound = np.sqrt(1 / self.layer_sizes[layer_idx])
+            bound = self._calculate_xavier_bounds(i)
             species = np.random.uniform(low=(-1 * bound), high=bound,
                                         size=self.cosyne_config['pop_size'])
             self.subpopulations[i] = species
@@ -187,6 +190,7 @@ class Cosyne(object):
             self.param_flattened_sizes.append(param.view(-1, 1).size()[0])
         self.num_parameters = np.sum(self.param_flattened_sizes)
         self.layer_sizes = self.nn.extract_layer_sizes()
+        self.layer_indicies = np.cumsum(self.param_flattened_sizes) - 1
 
     
     def _reconstruct_params(self, flat_params):
