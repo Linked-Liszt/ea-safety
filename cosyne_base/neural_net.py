@@ -1,6 +1,9 @@
 import numpy as np
 import torch
 import torch.nn as nn
+# TODO: Consider refactor to functional versions
+import torch.nn.functional as F
+
 
 
 
