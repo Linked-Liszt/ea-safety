@@ -113,7 +113,7 @@ class EvoAlg(object):
     def __init__(self, pararms, grads, fitnesses):
         self.params = pararms
         self.grads = grads
-        self.fitnesses = fitnesses
+        self.fitnesses = np.array(fitnesses)
 
         #CONSTANTS
         self.num_mutate = [4,3,2,1]
@@ -122,11 +122,11 @@ class EvoAlg(object):
 
     
     def select_parents(self):
-        argsorted = np.argsort(self.fitnesses)
+        argsorted = np.argsort(-self.fitnesses)
         self.parent_params = []
         self.parent_grads = []
-        for pop_place in range(self.num_mutate):
-            pop_idx = np.where(argsorted == pop_place)[0]
+        for pop_place in range(len(self.num_mutate)):
+            pop_idx = argsorted[pop_place]
             self.parent_params.append(copy.deepcopy(self.params[pop_idx]))
             self.parent_grads.append(copy.deepcopy(self.grads[pop_idx]))
     
@@ -138,8 +138,8 @@ class EvoAlg(object):
             parent_count = self.num_mutate[parent_idx]
             for child_count in range(parent_count):
                 child = []
-                params = self.parent_params 
-                grads = self.parent_grads
+                params = self.parent_params[parent_idx]
+                grads = self.parent_grads[parent_idx]
                 for i in range(len(params)):
                     child.append(self.mutate(params[i], grads[i]))
                 next_gen.append(child)
@@ -228,13 +228,12 @@ def finish_episode():
 
     optimizer.step()
 
-    # reset rewards and action buffer
-    model.reset_storage()
-
     pop_gen = EvoAlg(extracted_parameters, extracted_grads, model.fitnesses)
     new_pop = pop_gen.create_new_pop()
     
     model.insert_params(new_pop)
+
+
 
     """
     LR = 0.0001
@@ -246,6 +245,9 @@ def finish_episode():
     
     model.insert_params(extracted_parameters)
     """
+
+    # reset rewards and action buffer
+    model.reset_storage()
 
 
 def main():
