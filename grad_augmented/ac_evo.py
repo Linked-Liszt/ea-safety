@@ -80,7 +80,13 @@ class Policy(nn.Module):
                 individual.load_state_dict(state_dict)
 
     def extract_grads(self):
-        pass
+        extracted_grads = []
+        for layer in self.population:
+            layer_grads = []
+            for name, parameter in layer.named_parameters():
+                layer_grads.append(parameter.grad.detach())
+            extracted_grads.append(layer_grads)
+        return extracted_grads
 
     def forward(self, x, pop_idx):
         """
@@ -99,6 +105,17 @@ class Policy(nn.Module):
         # 1. a list with the probability of each action over the action space
         # 2. the value from state s_t 
         return action_prob, state_values
+
+
+
+class EvoAlg(object):
+    def __init__(self, pararms, grads, fitnesses):
+        self.params = pararms
+        self.grads = grads
+        self.fitnesses = fitnesses
+    
+    
+
 
 
 model = Policy()
@@ -164,11 +181,14 @@ def finish_episode():
     # reset gradients
     optimizer.zero_grad()
 
-    # sum up all the values of policy_losses and value_losses
     
-
+    extracted_parameters = model.extract_params()
+    
     # perform backprop
     loss.backward()
+
+    extracted_grads = model.extract_grads()
+
     optimizer.step()
 
     # reset rewards and action buffer
@@ -176,14 +196,16 @@ def finish_episode():
 
 
     
-    extracted_parameters = model.extract_params()
     model.insert_params(extracted_parameters)
-    """
-    for individual in extracted_parameters:
-        for param in individual:
-            print(param.size())
-    print()
-    """
+
+
+    LR = 0.0001
+
+    for pop_idx in range(len(extracted_parameters)):
+        for param_idx in range(len(extracted_parameters[pop_idx])):
+            extracted_parameters[pop_idx][param_idx] += (LR * extracted_grads[pop_idx][param_idx])
+    #print()
+    model.insert_params(extracted_parameters)
     
 
 
