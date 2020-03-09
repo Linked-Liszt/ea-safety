@@ -1,6 +1,7 @@
 import argparse
 import gym
 import numpy as np
+import copy
 from itertools import count
 from collections import namedtuple
 
@@ -113,9 +114,45 @@ class EvoAlg(object):
         self.params = pararms
         self.grads = grads
         self.fitnesses = fitnesses
-    
-    
 
+        #CONSTANTS
+        self.num_mutate = [4,3,2,1]
+        self.learning_rate = 1e-3
+        self.scale_weight = 0.5
+
+    
+    def select_parents(self):
+        argsorted = np.argsort(self.fitnesses)
+        self.parent_params = []
+        self.parent_grads = []
+        for pop_place in range(self.num_mutate):
+            pop_idx = np.where(argsorted == pop_place)[0]
+            self.parent_params.append(copy.deepcopy(self.params[pop_idx]))
+            self.parent_grads.append(copy.deepcopy(self.grads[pop_idx]))
+    
+    
+    def create_new_pop(self):
+        self.select_parents()
+        next_gen = []
+        for parent_idx in range(len(self.num_mutate)):
+            parent_count = self.num_mutate[parent_idx]
+            for child_count in range(parent_count):
+                child = []
+                params = self.parent_params 
+                grads = self.parent_grads
+                for i in range(len(params)):
+                    child.append(self.mutate(params[i], grads[i]))
+                next_gen.append(child)
+        return next_gen
+    
+    def mutate(self, param, grad):
+        adjusted_grad = self.learning_rate * grad
+
+        locs = param - adjusted_grad
+        scales = torch.abs(adjusted_grad) * self.scale_weight
+
+        norm_dist = torch.distributions.normal.Normal(locs, scales)
+        return norm_dist.sample()
 
 
 model = Policy()
@@ -194,19 +231,21 @@ def finish_episode():
     # reset rewards and action buffer
     model.reset_storage()
 
-
+    pop_gen = EvoAlg(extracted_parameters, extracted_grads, model.fitnesses)
+    new_pop = pop_gen.create_new_pop()
     
-    model.insert_params(extracted_parameters)
+    model.insert_params(new_pop)
 
-
+    """
     LR = 0.0001
 
     for pop_idx in range(len(extracted_parameters)):
         for param_idx in range(len(extracted_parameters[pop_idx])):
             extracted_parameters[pop_idx][param_idx] += (LR * extracted_grads[pop_idx][param_idx])
     #print()
-    model.insert_params(extracted_parameters)
     
+    model.insert_params(extracted_parameters)
+    """
 
 
 def main():
