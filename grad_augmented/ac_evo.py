@@ -60,12 +60,27 @@ class Policy(nn.Module):
         self.fitnesses = [0] * POP_SIZE
 
     def extract_params(self):
-        pass
+        extracted_parameters = []
+        for layer in self.population:
+            layer_params = []
+            for name, parameter in layer.named_parameters():
+                layer_params.append(parameter.detach())
+            extracted_parameters.append(layer_params)
+        return extracted_parameters
+
+    def insert_params(self, incoming_params):
+        with torch.no_grad():
+            for pop_idx in range(len(self.population)):
+                params_idx = 0
+                individual = self.population[pop_idx]
+                state_dict = individual.state_dict()
+                for name, parameter in individual.named_parameters():
+                    state_dict[name] = incoming_params[pop_idx][params_idx]
+                    params_idx += 1
+                individual.load_state_dict(state_dict)
 
     def extract_grads(self):
         pass
-
-    def 
 
     def forward(self, x, pop_idx):
         """
@@ -150,6 +165,7 @@ def finish_episode():
     optimizer.zero_grad()
 
     # sum up all the values of policy_losses and value_losses
+    
 
     # perform backprop
     loss.backward()
@@ -157,6 +173,18 @@ def finish_episode():
 
     # reset rewards and action buffer
     model.reset_storage()
+
+
+    
+    extracted_parameters = model.extract_params()
+    model.insert_params(extracted_parameters)
+    """
+    for individual in extracted_parameters:
+        for param in individual:
+            print(param.size())
+    print()
+    """
+    
 
 
 def main():
