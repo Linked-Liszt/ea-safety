@@ -4,6 +4,7 @@ import numpy as np
 import copy
 from itertools import count
 from collections import namedtuple
+import pickle
 
 import torch
 import torch.nn as nn
@@ -16,7 +17,7 @@ from torch.distributions import Categorical
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
                     help='discount factor (default: 0.99)')
-parser.add_argument('--seed', type=int, default=543, metavar='N',
+parser.add_argument('--seed', type=int, default=False, metavar='N',
                     help='random seed (default: 543)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
@@ -24,10 +25,14 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='interval between training status logs (default: 10)')
 args = parser.parse_args()
 
+log_directory = 'checkpoints'
+log_name = 'lunarlander'
+env_name = 'LunarLander-v2'
+env = gym.make(env_name)
 
-env = gym.make('CartPole-v0')
-env.seed(args.seed)
-torch.manual_seed(args.seed)
+if args.seed != False:
+    env.seed(args.seed)
+    torch.manual_seed(args.seed)
 
 
 SavedAction = namedtuple('SavedAction', ['log_prob', 'value'])
@@ -41,12 +46,12 @@ class Policy(nn.Module):
     """
     def __init__(self):
         super(Policy, self).__init__()
-        self.affine1 = nn.Linear(4, 128)
+        self.affine1 = nn.Linear(8, 128)
 
         # actor's layer
         self.population = nn.ModuleList()
         for _ in range(POP_SIZE):
-            self.population.append(nn.Linear(128, 2))     
+            self.population.append(nn.Linear(128, 4))     
 
         # critic's layer
         self.value_head = nn.Linear(128, 1)
@@ -108,6 +113,35 @@ class Policy(nn.Module):
         return action_prob, state_values
 
 
+class CheckpointSaver(object):
+    def __init__(self, directory, name, env):
+        self.directory = directory
+        self.name = name
+        self.checkpoint_counter = 0
+        self.env = env
+        self.log = []
+
+
+    def save_fitnesses(self, fitnesses, gen):
+        data_dict = {}
+        data_dict['gen'] = gen
+        data_dict['fit_best'] = np.max(fitnesses)
+        data_dict['fit_mean'] = np.mean(fitnesses)
+        data_dict['fit_med'] = np.median(fitnesses)
+        data_dict['fit_std'] = np.std(fitnesses)
+        self.log.append(data_dict)
+
+
+    def export_data(self, module):
+       
+        data_path = self.directory + '/' + self.name + '-' + str(self.checkpoint_counter) + '.p'
+        save_dict = {}
+        save_dict['env'] = self.env
+        save_dict['nn'] = module
+        save_dict['log'] = self.log
+        pickle.dump(save_dict, open(data_path, 'wb'))
+
+checksaver = CheckpointSaver(log_directory, log_name, env_name)
 
 class EvoAlg(object):
     def __init__(self, pararms, grads, fitnesses):
@@ -181,7 +215,7 @@ def finish_episode():
     """
     Training code. Calculates actor and critic loss and performs backprop.
     """
-    #loss = torch.stack()
+
     loss = None
     for pop_idx in range(POP_SIZE):
         R = 0
@@ -282,6 +316,7 @@ def main():
         # update cumulative reward
         running_reward = 0.05 * ep_reward + (1 - 0.05) * running_reward
         print(model.fitnesses)
+        checksaver.save_fitnesses(model.fitnesses, i_episode)
         # perform backprop
         finish_episode()
 
@@ -289,6 +324,8 @@ def main():
         if i_episode % args.log_interval == 0:
             print('Episode {}\tLast reward: {:.2f}\tAverage reward: {:.2f}'.format(
                   i_episode, ep_reward, running_reward))
+        
+        checksaver.export_data(model)
 
         # check if we have "solved" the cart pole problem
         if running_reward > env.spec.reward_threshold:
