@@ -38,6 +38,8 @@ if args.seed != False:
 SavedAction = namedtuple('SavedAction', ['log_prob', 'value'])
 
 POP_SIZE = 10
+NUM_LAYERS = 2
+HIDDEN_SIZE = 128
 
 
 class Policy(nn.Module):
@@ -46,15 +48,19 @@ class Policy(nn.Module):
     """
     def __init__(self):
         super(Policy, self).__init__()
-        self.affine1 = nn.Linear(8, 128)
+        self.affine1 = nn.Linear(8, HIDDEN_SIZE)
 
         # actor's layer
-        self.population = nn.ModuleList()
+        self.population = []
         for _ in range(POP_SIZE):
-            self.population.append(nn.Linear(128, 4))     
+            individual = nn.ModuleList()
+            for _ in range(NUM_LAYERS - 1):
+                individual.append(nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE))
+            individual.append(nn.Linear(HIDDEN_SIZE, 4))
+            self.population.append(individual) 
 
         # critic's layer
-        self.value_head = nn.Linear(128, 1)
+        self.value_head = nn.Linear(HIDDEN_SIZE, 1)
 
         # action & reward buffer
         self.reset_storage()
@@ -67,10 +73,11 @@ class Policy(nn.Module):
 
     def extract_params(self):
         extracted_parameters = []
-        for layer in self.population:
+        for individual in self.population:
             layer_params = []
-            for name, parameter in layer.named_parameters():
-                layer_params.append(parameter.detach())
+            for layer in individual:
+                for name, parameter in layer.named_parameters():
+                    layer_params.append(parameter.detach())
             extracted_parameters.append(layer_params)
         return extracted_parameters
 
@@ -79,18 +86,20 @@ class Policy(nn.Module):
             for pop_idx in range(len(self.population)):
                 params_idx = 0
                 individual = self.population[pop_idx]
-                state_dict = individual.state_dict()
-                for name, parameter in individual.named_parameters():
-                    state_dict[name] = incoming_params[pop_idx][params_idx]
-                    params_idx += 1
-                individual.load_state_dict(state_dict)
+                for layer in individual:
+                    state_dict = layer.state_dict()
+                    for name, parameter in layer.named_parameters():
+                        state_dict[name] = incoming_params[pop_idx][params_idx]
+                        params_idx += 1
+                    layer.load_state_dict(state_dict)
 
     def extract_grads(self):
         extracted_grads = []
-        for layer in self.population:
+        for individual in self.population:
             layer_grads = []
-            for name, parameter in layer.named_parameters():
-                layer_grads.append(parameter.grad.detach())
+            for layer in individual:
+                for name, parameter in layer.named_parameters():
+                    layer_grads.append(parameter.grad.detach())
             extracted_grads.append(layer_grads)
         return extracted_grads
 
@@ -99,10 +108,14 @@ class Policy(nn.Module):
         forward of both actor and critic
         """
         x = F.relu(self.affine1(x))
+        a = x
 
         # actor: choses action to take from state s_t 
         # by returning probability of each action
-        action_prob = F.softmax(self.population[pop_idx](x))
+        for i in range(len(self.population[pop_idx]) - 1):
+            a = F.relu(self.population[pop_idx][i](a))
+
+        action_prob = F.softmax(self.population[pop_idx][-1](a))
 
         # critic: evaluates being in the state s_t
         state_values = self.value_head(x)
@@ -137,9 +150,10 @@ class CheckpointSaver(object):
         data_path = self.directory + '/' + self.name + '-' + str(self.checkpoint_counter) + '.p'
         save_dict = {}
         save_dict['env'] = self.env
-        save_dict['nn'] = module
+        save_dict['nn'] = None
         save_dict['log'] = self.log
         pickle.dump(save_dict, open(data_path, 'wb'))
+        self.checkpoint_counter += 1
 
 checksaver = CheckpointSaver(log_directory, log_name, env_name)
 
@@ -324,8 +338,9 @@ def main():
         if i_episode % args.log_interval == 0:
             print('Episode {}\tLast reward: {:.2f}\tAverage reward: {:.2f}'.format(
                   i_episode, ep_reward, running_reward))
+            checksaver.export_data(model)
         
-        checksaver.export_data(model)
+        
 
         # check if we have "solved" the cart pole problem
         if running_reward > env.spec.reward_threshold:
