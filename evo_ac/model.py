@@ -3,44 +3,36 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-
-
 class Policy(nn.Module):
     """
     implements both actor and critic in one model
+    TODO: Add ability to contain lstm and RNN layers. 
     """
     def __init__(self, config_dict):
         super(Policy, self).__init__()
         self.config_dict = config_dict
-        self.affine1 = nn.Linear(8, HIDDEN_SIZE)
+        self.net_config = config_dict['neural_net']
+        
+        self._init_model_layers()
 
-        # actor's layer
-        self.population = []
-        for _ in range(POP_SIZE):
-            individual = nn.ModuleList()
-            for _ in range(NUM_LAYERS - 1):
-                individual.append(nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE))
-            individual.append(nn.Linear(HIDDEN_SIZE, 4))
-            self.population.append(individual) 
+    def _init_model_layers(self):
+        self.shared_net = self._add_layers(self.net_config['shared'])
+        self.policy_nets = [self._add_layers(self.net_config['policy']) 
+                            for _ in range(self.config_dict['pop_size'])]
+        self.value_net = self._add_layers(self.net_config['value'])
 
-        # critic's layer
-        self.value_head = nn.Linear(HIDDEN_SIZE, 1)
-
-        # action & reward buffer
-        self.reset_storage()
-
-    def _init_layers(self):
-        pass 
-
-
-    def reset_storage(self):
-        self.saved_actions = [[] for _ in range(POP_SIZE)]
-        self.rewards = [[] for _ in range(POP_SIZE)]
-        self.fitnesses = [0] * POP_SIZE
+    def _add_layers(self, layer_config):
+        output_ml = nn.ModuleList()
+        for layer in layer_config:
+            output_ml.append(self.__add_layer(
+                layer['type'], 
+                layer['params'],
+                layer['kwargs']))
+        return output_ml
 
     def extract_params(self):
         extracted_parameters = []
-        for individual in self.population:
+        for individual in self.policy_nets:
             layer_params = []
             for layer in individual:
                 for name, parameter in layer.named_parameters():
@@ -50,9 +42,9 @@ class Policy(nn.Module):
 
     def insert_params(self, incoming_params):
         with torch.no_grad():
-            for pop_idx in range(len(self.population)):
+            for pop_idx in range(len(self.policy_nets)):
                 params_idx = 0
-                individual = self.population[pop_idx]
+                individual = self.policy_nets[pop_idx]
                 for layer in individual:
                     state_dict = layer.state_dict()
                     for name, parameter in layer.named_parameters():
@@ -62,7 +54,7 @@ class Policy(nn.Module):
 
     def extract_grads(self):
         extracted_grads = []
-        for individual in self.population:
+        for individual in self.policy_nets:
             layer_grads = []
             for layer in individual:
                 for name, parameter in layer.named_parameters():
@@ -71,21 +63,22 @@ class Policy(nn.Module):
         return extracted_grads
 
     def forward(self, x, pop_idx):
-        """
-        forward of both actor and critic
-        """
-        x = F.relu(self.affine1(x))
-        a = x
+        shared = x
+        for layer in self.shared_net:
+            shared = layer(shared)
 
-        # actor: choses action to take from state s_t 
-        # by returning probability of each action
-        for i in range(len(self.population[pop_idx]) - 1):
-            a = F.relu(self.population[pop_idx][i](a))
+        policy = shared
+        value = shared
 
-        action_prob = F.softmax(self.population[pop_idx][-1](a))
+        for layer in self.policy_nets[pop_idx]:
+            policy = layer(policy)
+        
+        for layer in self.value_net:
+            value = layer(value)
 
-        # critic: evaluates being in the state s_t
-        state_values = self.value_head(x)
+        action_prob = F.softmax(self.policy_nets[pop_idx][-1](a))
+
+        state_values = self.value_head(value)
 
         # return values for both actor and critic as a tuple of 2 values:
         # 1. a list with the probability of each action over the action space
