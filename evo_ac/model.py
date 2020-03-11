@@ -2,8 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.distributions import Categorical
 
-class Policy(nn.Module):
+
+class EvoACModel(nn.Module):
     """
     implements both actor and critic in one model
     TODO: Add ability to contain lstm and RNN layers. 
@@ -15,11 +17,13 @@ class Policy(nn.Module):
         
         self._init_model_layers()
 
+
     def _init_model_layers(self):
         self.shared_net = self._add_layers(self.net_config['shared'])
         self.policy_nets = [self._add_layers(self.net_config['policy']) 
                             for _ in range(self.config_dict['pop_size'])]
         self.value_net = self._add_layers(self.net_config['value'])
+
 
     def _add_layers(self, layer_config):
         output_ml = nn.ModuleList()
@@ -30,6 +34,7 @@ class Policy(nn.Module):
                 layer['kwargs']))
         return output_ml
 
+
     def extract_params(self):
         extracted_parameters = []
         for individual in self.policy_nets:
@@ -39,6 +44,7 @@ class Policy(nn.Module):
                     layer_params.append(parameter.detach())
             extracted_parameters.append(layer_params)
         return extracted_parameters
+
 
     def insert_params(self, incoming_params):
         with torch.no_grad():
@@ -52,6 +58,7 @@ class Policy(nn.Module):
                         params_idx += 1
                     layer.load_state_dict(state_dict)
 
+
     def extract_grads(self):
         extracted_grads = []
         for individual in self.policy_nets:
@@ -61,6 +68,7 @@ class Policy(nn.Module):
                     layer_grads.append(parameter.grad.detach())
             extracted_grads.append(layer_grads)
         return extracted_grads
+
 
     def forward(self, x, pop_idx):
         shared = x
@@ -84,3 +92,14 @@ class Policy(nn.Module):
         # 1. a list with the probability of each action over the action space
         # 2. the value from state s_t 
         return action_prob, state_values
+
+
+    def get_action(self, state, pop_idx):
+        policy, value = self(state, pop_idx)
+
+        action_prob = F.softmax(policy, dim=-1)
+        cat = Categorical(action_prob)
+        action = cat.sample()
+
+        return action, cat.log_prob(action), cat.entropy().mean(), value
+                
