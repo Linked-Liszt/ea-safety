@@ -66,10 +66,7 @@ class Policy(nn.Module):
         self.reset_storage()
 
 
-    def reset_storage(self):
-        self.saved_actions = [[] for _ in range(POP_SIZE)]
-        self.rewards = [[] for _ in range(POP_SIZE)]
-        self.fitnesses = [0] * POP_SIZE
+    
 
     def extract_params(self):
         extracted_parameters = []
