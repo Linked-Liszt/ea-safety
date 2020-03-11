@@ -23,7 +23,7 @@ class EvoACStorage(object):
         self.num_pop = num_pop
         self.obs_shape = obs_shape
         self.is_cuda = is_cuda
-        self.episode_rewards = deque(maxlen=10)
+        self.episode_rewards = []
 
         self.value_coeff = value_coeff
         self.entropy_coeff = entropy_coeff
@@ -64,7 +64,7 @@ class EvoACStorage(object):
 
         # here the +1 comes from the fact that we need an initial state at the beginning of each rollout
         # which is the last state of the previous rollout
-        self.states = self._generate_buffer((self.max_episode_steps + 1, self.num_pop, *self.obs_shape))
+        self.states = self._generate_buffer((self.max_episode_steps + 1, self.num_pop, self.obs_shape))
 
         self.actions = self._generate_buffer((self.max_episode_steps, self.num_pop))
         self.log_probs = self._generate_buffer((self.max_episode_steps, self.num_pop))
@@ -95,7 +95,7 @@ class EvoACStorage(object):
     def obs2tensor(self, obs):
         # 1. reorder dimensions for nn.Conv2d (batch, ch_in, width, height)
         # 2. convert numpy array to _normalized_ FloatTensor
-        tensor = torch.from_numpy(obs.astype(np.float32).transpose((0, 3, 1, 2))) / 255.
+        tensor = torch.from_numpy(obs.astype(np.float32))
         return tensor.cuda() if self.is_cuda else tensor
 
     def insert(self, step, pop_idx, reward, obs, action, log_prob, value, dones):

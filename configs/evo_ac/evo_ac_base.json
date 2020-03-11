@@ -1,22 +1,11 @@
 {
     "evo_ac": {
-        "env": "Ant-v2",
+        "env": "LunarLander-v2",
         "log_path": "output_nets/ant",
         "pop_size": 10,
-        "parent_count": 3,
-        "recomb_count": 4,
-        "mate_mutate_ratio": 0.6,
-        "mutate_creep_rate": 0.2,
-        "perm_mod": 0.8,
-        "checkpoint_path": "checkpoints/ant",
-        "checkpoint_interval": 10,
-
-        "terminate":
-
-        {
-            "type": "gen",
-            "param": 50
-        }
+        "value_coeff": 0.5,
+        "entropy_coeff": 0.0,
+        "num_gens": 100
 
     },
 
@@ -24,11 +13,11 @@
         "shared": [
             {
                 "type": "Linear",
-                "params": [111, 30], 
+                "params": [8, 128], 
                 "kwargs": {"bias":true}
             }, 
             {
-                "type": "Sigmoid",
+                "type": "ReLU",
                 "params": [], 
                 "kwargs": {}
             }
@@ -38,25 +27,15 @@
         [
             {
                 "type": "Linear",
-                "params": [111, 30], 
+                "params": [128, 4], 
                 "kwargs": {"bias":true}
-            }, 
-            {
-                "type": "Sigmoid",
-                "params": [], 
-                "kwargs": {}
-            } 
+            }
         ],
         "value": [
             {
                 "type": "Linear",
-                "params": [111, 30], 
+                "params": [128, 1], 
                 "kwargs": {"bias":true}
-            }, 
-            {
-                "type": "Sigmoid",
-                "params": [], 
-                "kwargs": {}
             }
         ]
         

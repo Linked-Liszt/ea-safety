@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 from evo_ac.model import EvoACModel
+import torch
 from evo_ac.storage import EvoACStorage
 
 
@@ -27,9 +28,12 @@ class EvoACRunner(object):
     def train(self):
         for gen_idx in range(self.config_evo['num_gens']):
             self.storage.reset_buffers()
+            #TODO entropies
             for pop_idx in range(self.config_evo['pop_size']):
                 obs = self.env.reset()
                 
+                final_rewards = torch.tensor((1, pop_idx))
+
                 self.storage.states[0][pop_idx].copy_(self.storage.obs2tensor(obs))
                 episode_entropy = 0
                 step = 0
@@ -38,12 +42,20 @@ class EvoACRunner(object):
                     action, log_p_a, entropy, value = self.model.get_action(obs, pop_idx)
                     episode_entropy += entropy
 
-                    obs, rewards, done, info = self.env.step(action.cpu().numpy())
+                    obs, reward, done, info = self.env.step(action.cpu().numpy())
 
-                    #TODO: Understand this call
                     self.storage.log_episode_rewards(info)
-                    self.storage.insert(step, pop_idx, rewards, obs, action, log_p_a, value, done)
+                    self.storage.insert(step, pop_idx, reward, obs, action, log_p_a, value, done)
                     step += 1
                 
-            # Calculate loss here
+                    if done:
+                        break
+                
+                final_rewards[0][pop_idx] = reward
+                
+
+            self.storage.print_reward_stats()                            
+            loss = self.storage.a2c_loss(self, final_rewards)
+            loss.backward()
+
             

@@ -11,24 +11,25 @@ class EvoACModel(nn.Module):
     TODO: Add ability to contain lstm and RNN layers. 
     """
     def __init__(self, config_dict):
-        super(Policy, self).__init__()
-        self.config_dict = config_dict
+        super(EvoACModel, self).__init__()
+        self.evo_config = config_dict['evo_ac']
         self.net_config = config_dict['neural_net']
         
         self._init_model_layers()
+        self.opt = optim.Adam(self.parameters())
 
 
     def _init_model_layers(self):
         self.shared_net = self._add_layers(self.net_config['shared'])
         self.policy_nets = [self._add_layers(self.net_config['policy']) 
-                            for _ in range(self.config_dict['pop_size'])]
+                            for _ in range(self.evo_config['pop_size'])]
         self.value_net = self._add_layers(self.net_config['value'])
 
 
     def _add_layers(self, layer_config):
         output_ml = nn.ModuleList()
         for layer in layer_config:
-            output_ml.append(self.__add_layer(
+            output_ml.append(self._add_layer(
                 layer['type'], 
                 layer['params'],
                 layer['kwargs']))
@@ -102,4 +103,7 @@ class EvoACModel(nn.Module):
         action = cat.sample()
 
         return action, cat.log_prob(action), cat.entropy().mean(), value
-                
+    
+    def _add_layer(self, layer_type, layer_params, layer_kwargs):
+        #Finds the pytorch relevant function and calls it with params and kwargs
+        return getattr(nn, layer_type)(*layer_params, **layer_kwargs)
