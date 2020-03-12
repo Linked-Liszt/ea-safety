@@ -50,6 +50,8 @@ class EvoACRunner(object):
             loss.backward()
             self.model.opt.step()
 
+            # Evo Alg Here
+
             print(self.storage.fitnesses)
 
             

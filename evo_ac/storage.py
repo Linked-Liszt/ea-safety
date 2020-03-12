@@ -61,6 +61,7 @@ class EvoACStorage(object):
                 self.discounted_rewards[pop_idx].insert(0, reward)
     
     def get_loss(self):
+        # TODO: Double check sequencing
         self._discount_rewards()
         value_losses = []
         policy_losses = []
