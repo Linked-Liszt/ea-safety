@@ -37,14 +37,15 @@ class EvoACModel(nn.Module):
 
 
     def extract_params(self):
-        extracted_parameters = []
-        for individual in self.policy_nets:
-            layer_params = []
-            for layer in individual:
-                for name, parameter in layer.named_parameters():
-                    layer_params.append(parameter.detach())
-            extracted_parameters.append(layer_params)
-        return extracted_parameters
+        with torch.no_grad():
+            extracted_parameters = []
+            for individual in self.policy_nets:
+                layer_params = []
+                for layer in individual:
+                    for name, parameter in layer.named_parameters():
+                        layer_params.append(parameter.detach())
+                extracted_parameters.append(layer_params)
+            return extracted_parameters
 
 
     def insert_params(self, incoming_params):
@@ -61,14 +62,15 @@ class EvoACModel(nn.Module):
 
 
     def extract_grads(self):
-        extracted_grads = []
-        for individual in self.policy_nets:
-            layer_grads = []
-            for layer in individual:
-                for name, parameter in layer.named_parameters():
-                    layer_grads.append(parameter.grad.detach())
-            extracted_grads.append(layer_grads)
-        return extracted_grads
+        with torch.no_grad():
+            extracted_grads = []
+            for individual in self.policy_nets:
+                layer_grads = []
+                for layer in individual:
+                    for name, parameter in layer.named_parameters():
+                        layer_grads.append(parameter.grad.detach())
+                extracted_grads.append(layer_grads)
+            return extracted_grads
 
 
     def forward(self, x, pop_idx):

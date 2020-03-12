@@ -3,7 +3,7 @@ import torch
 import numpy as np
 
 
-class EvoAlg(object):
+class EvoACEvoAlg(object):
     def __init__(self, config_dict):
         self.evo_config = config_dict['evo_ac']
         self.net_config = config_dict['neural_net']
@@ -20,7 +20,7 @@ class EvoAlg(object):
         self.grads = grads
 
     def set_fitnesses(self, fitnesses):
-        self.fitnesses = fitnesses
+        self.fitnesses = np.array(fitnesses)
     
     def select_parents(self):
         argsorted = np.argsort(-self.fitnesses)
@@ -44,6 +44,7 @@ class EvoAlg(object):
                 for i in range(len(params)):
                     child.append(self.mutate(params[i], grads[i]))
                 next_gen.append(child)
+        self.params = next_gen
         return next_gen
     
 
@@ -51,7 +52,7 @@ class EvoAlg(object):
         adjusted_grad = self.learning_rate * grad
 
         locs = param - adjusted_grad
-        scales = torch.abs(adjusted_grad) * self.scale_weight
+        scales = torch.abs(adjusted_grad) * self.mut_scale
 
         norm_dist = torch.distributions.normal.Normal(locs, scales)
         return norm_dist.sample()

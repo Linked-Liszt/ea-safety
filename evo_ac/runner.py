@@ -3,6 +3,7 @@ import numpy as np
 from evo_ac.model import EvoACModel
 import torch
 from evo_ac.storage import EvoACStorage
+from evo_ac.grad_evo import EvoACEvoAlg
 
 
 class EvoACRunner(object):
@@ -22,6 +23,8 @@ class EvoACRunner(object):
         entropy_coff = self.config_evo['entropy_coeff']
 
         self.storage = EvoACStorage(num_pop)
+        self.evo = EvoACEvoAlg(config)
+        self.evo.set_params(self.model.extract_params())
 
     def train(self):
         for gen_idx in range(self.config_evo['num_gens']):
@@ -48,9 +51,13 @@ class EvoACRunner(object):
             self.model.opt.zero_grad()
             loss = self.storage.get_loss()
             loss.backward()
+            self.evo.set_grads(self.model.extract_grads())
             self.model.opt.step()
+            self.evo.set_fitnesses(self.storage.fitnesses)
 
-            # Evo Alg Here
+            new_pop = self.evo.create_new_pop()
+
+            self.model.insert_params(new_pop)
 
             print(self.storage.fitnesses)
 
