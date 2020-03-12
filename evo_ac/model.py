@@ -16,7 +16,7 @@ class EvoACModel(nn.Module):
         self.net_config = config_dict['neural_net']
         
         self._init_model_layers()
-        self.opt = optim.Adam(self.parameters())
+        self.opt = optim.Adam(self.parameters(), lr=3e-2)
 
 
     def _init_model_layers(self):

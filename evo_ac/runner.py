@@ -18,47 +18,38 @@ class EvoACRunner(object):
         obs_size = np.prod(np.shape(self.env.observation_space))
         num_pop = self.config_evo['pop_size']
         max_ep_steps = self.env._max_episode_steps
-        is_cuda = False #TODO auto-detect
         value_coeff = self.config_evo['value_coeff']
         entropy_coff = self.config_evo['entropy_coeff']
 
-        self.storage = EvoACStorage(max_ep_steps, num_pop, obs_size, is_cuda,
-                                        entropy_coff)
+        self.storage = EvoACStorage(num_pop)
 
     def train(self):
         for gen_idx in range(self.config_evo['num_gens']):
-            self.storage.reset_buffers()
+            self.storage.reset_storage()
             #TODO entropies
-
-            final_rewards = torch.empty((1, self.config_evo['pop_size']))
-            entropies = torch.empty((1, self.config_evo['pop_size']))
 
             for pop_idx in range(self.config_evo['pop_size']):
                 obs = self.env.reset()
 
-                self.storage.states[0][pop_idx].copy_(self.storage.obs2tensor(obs))
-                episode_entropy = 0
-                step = 0
+                fitness = 0
 
                 while True:
                     action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), pop_idx)
-                    episode_entropy += entropy
 
                     obs, reward, done, info = self.env.step(action.cpu().numpy())
+                    fitness += reward
 
-                    self.storage.log_episode_rewards(info)
-                    self.storage.insert(step, pop_idx, reward, obs, action, log_p_a, value, done)
-                    step += 1
+                    self.storage.insert(pop_idx, reward, action, log_p_a, value)
                 
                     if done:
                         break
                 
-                final_rewards[0][pop_idx] = reward
-                entropies[0][pop_idx] = episode_entropy.item()
-                
-
-            self.storage.print_reward_stats()                            
-            loss = self.storage.a2c_loss(final_rewards, entropies)
+                self.storage.insert_fitness(pop_idx, fitness)
+            self.model.opt.zero_grad()
+            loss = self.storage.get_loss()
             loss.backward()
+            self.model.opt.step()
+
+            print(self.storage.fitnesses)
 
             

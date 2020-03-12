@@ -61,18 +61,19 @@ class EvoACStorage(object):
                 self.discounted_rewards[pop_idx].insert(0, reward)
     
     def get_loss(self):
+        self._discount_rewards()
         value_losses = []
         policy_losses = []
         for pop_idx in range(self.pop_size):
-            for step_idx in range(self.rewards):
+            for step_idx in range(len(self.rewards[pop_idx])):
                 value = self.values[pop_idx][step_idx]
-                reward = self.rewards[pop_idx][step_idx]
+                reward = self.discounted_rewards[pop_idx][step_idx]
 
                 advantage = reward - value.item()
 
                 value_losses.append(F.smooth_l1_loss(value, torch.tensor([reward])))
 
-                policy_losses.append((-self.log_probs[pop_idx] * advantage.detach()).mean())
+                policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage).mean())
     
         loss = (torch.stack(policy_losses).sum() * self.value_coeff) + torch.stack(value_losses).sum() # - self.entropy_coeff * entropy
         return loss
