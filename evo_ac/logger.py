@@ -9,6 +9,7 @@ NOTIFICATION_PATH = "/home/oxymoren/Desktop/rand_utils/dm_me.sh"
 class EvoACLogger(object):
     def __init__(self, config):
 
+        self.config = config
         self.config_exp = config['experiment']
         self.config_evoac = config['evo_ac']
 
@@ -23,7 +24,10 @@ class EvoACLogger(object):
         self.run_log = []
         self.run_counter = 0
         self.best_fitness = float('-inf')
+        
         self.start_time = datetime.now()
+        self.run_end_times = []
+        self.run_end_times.append(self.start_time)
 
 
     def save_fitnesses(self, model, fitnesses, gen):
@@ -42,17 +46,27 @@ class EvoACLogger(object):
     def end_run(self):
         self.experiment_log.append(self.run_log)
         self.run_log = []
-        self._export_data(f'run_{self.run_counter:02d}')
+        self.run_end_times.append(datetime.now())
+        if self.config_exp['log_run']:
+            self._export_data(f'run_{self.run_counter:02d}')
         self.run_counter += 1
+
+    def end_experiment(self):
+        self._export_data('final')
+        if self.config_exp['discord_ping']:
+            self._send_discord_notification()
         
     def _export_data(self, export_name):
         data_path = self.directory + '/' + self.name + '_' \
                 + export_name + '.p'
 
         save_dict = {}
+        save_dict['start_time'] = self.start_time
         save_dict['env'] = self.env
         save_dict['best_nn'] = self.best_model
         save_dict['experiment_log'] = self.experiment_log
+        save_dict['times'] = self.run_end_times
+        save_dict['config'] = self.config
         pickle.dump(save_dict, open(data_path, 'wb'))
 
     def print_data(self, gen_idx):

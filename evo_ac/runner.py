@@ -75,5 +75,4 @@ class EvoACRunner(object):
                 self.logger.print_data(gen_idx)
             
             self.logger.end_run()
-        if self.config_exp['discord_ping']:
-            self.logger._send_discord_notification()
+        self.logger.end_experiment()            
