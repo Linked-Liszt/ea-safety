@@ -2,15 +2,17 @@
     "experiment": {
         "env": "CartPole-v1",
         "num_runs": 30,
-        "log_path": "checkpoints/evo_ac",
-        "log_name": "evo_ac_cartpole_"
+        "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
+        "log_name": "evo_ac_cartpole_",
+        "print_interval": 10,
+        "discord_ping":true
     },
     
     "evo_ac": {
         "pop_size": 10,
         "value_coeff": 0.5,
         "entropy_coeff": 0.0,
-        "num_gens": 500,
+        "num_gens": 75,
         "recomb_nums": [4,3,2,1],
         "learning_rate": 1e-4,
         "mut_scale":  0.5

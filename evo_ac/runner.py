@@ -59,7 +59,7 @@ class EvoACRunner(object):
                     
                     self.storage.insert_fitness(pop_idx, fitness)
                 
-                self.logger.save_fitnesses(self.storage.fitnesses, gen_idx)
+                self.logger.save_fitnesses(self.model, self.storage.fitnesses, gen_idx)
 
                 self.model.opt.zero_grad()
                 loss = self.storage.get_loss()
@@ -71,5 +71,9 @@ class EvoACRunner(object):
                 new_pop = self.evo.create_new_pop()
 
                 self.model.insert_params(new_pop)
+
+                self.logger.print_data(gen_idx)
             
             self.logger.end_run()
+        if self.config_exp['discord_ping']:
+            self.logger._send_discord_notification()

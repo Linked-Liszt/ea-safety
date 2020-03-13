@@ -1,8 +1,10 @@
 import pickle
 import numpy as np
 import copy
+import os
+from datetime import datetime
 
-
+NOTIFICATION_PATH = "/home/oxymoren/Desktop/rand_utils/dm_me.sh"
 
 class EvoACLogger(object):
     def __init__(self, config):
@@ -21,6 +23,7 @@ class EvoACLogger(object):
         self.run_log = []
         self.run_counter = 0
         self.best_fitness = float('-inf')
+        self.start_time = datetime.now()
 
 
     def save_fitnesses(self, model, fitnesses, gen):
@@ -40,7 +43,7 @@ class EvoACLogger(object):
         self.experiment_log.append(self.run_log)
         self.run_log = []
         self._export_data(f'run_{self.run_counter:02d}')
-
+        self.run_counter += 1
         
     def _export_data(self, export_name):
         data_path = self.directory + '/' + self.name + '_' \
@@ -54,6 +57,22 @@ class EvoACLogger(object):
 
     def print_data(self, gen_idx):
         if gen_idx % self.print_interval == 0:
+            data_dict = self.run_log[-1]
+            display_str = f'\n\nGen {gen_idx}\n' \
+                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}\n" \
+                + f"Full: {data_dict['fit']}"
+            print(display_str)
             
+    def _send_discord_notification(self):
+        end_time = datetime.now()
+        time_delta = end_time - self.start_time
 
+        time_start_str = self.start_time.strftime("%H:%M:%S")
+        end_time_str = end_time.strftime("%H:%M:%S")
+        time_delta_str = str(time_delta)
+        command = NOTIFICATION_PATH + \
+            f' \"Experiment {self.name.rstrip("_")} has finished.' + \
+            f'//n// Time Start: {time_start_str} Time End: {end_time_str}' + \
+            f'//n// Time Δ: {time_delta_str}\"'
+        os.system(command)
 
