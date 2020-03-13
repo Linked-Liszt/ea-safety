@@ -24,11 +24,11 @@ class EvoACRunner(object):
         self.run_id = run_id
         num_pop = self.config_evo['pop_size']
         value_coeff = self.config_evo['value_coeff']
-        entropy_coff = self.config_evo['entropy_coeff']
+        entropy_coeff = self.config_evo['entropy_coeff']
 
         self.model = EvoACModel(self.config)
 
-        self.storage = EvoACStorage(num_pop)
+        self.storage = EvoACStorage(num_pop, value_coeff, entropy_coeff)
 
         self.evo = EvoACEvoAlg(self.config)
         self.evo.set_params(self.model.extract_params())

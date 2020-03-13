@@ -1,7 +1,7 @@
 {
     "experiment": {
         "env": "LunarLander-v2",
-        "num_runs": 5,
+        "num_runs": 3,
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
         "log_name": "evo_ac_lunar_lander_",
         "print_interval": 10,

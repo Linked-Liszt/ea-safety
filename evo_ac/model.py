@@ -93,6 +93,9 @@ class EvoACModel(nn.Module):
         # 2. the value from state s_t 
         return policy, value
 
+    def get_genetic_diversity(self):
+        pass
+
 
     def get_action(self, state, pop_idx):
         policy, value = self(state, pop_idx)
