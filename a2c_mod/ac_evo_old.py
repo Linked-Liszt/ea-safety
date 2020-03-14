@@ -65,6 +65,10 @@ class Policy(nn.Module):
         # action & reward buffer
         self.reset_storage()
 
+    def reset_storage(self):
+        self.saved_actions = [[] for _ in range(POP_SIZE)]
+        self.rewards = [[] for _ in range(POP_SIZE)]
+        self.fitnesses = [0] * POP_SIZE
 
     
 
@@ -258,6 +262,7 @@ def finish_episode():
         else:
             loss += torch.stack(policy_losses).sum() + torch.stack(value_losses).sum()
 
+        print(torch.stack(policy_losses).sum().item())
         
     
     # reset gradients

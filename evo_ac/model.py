@@ -16,7 +16,7 @@ class EvoACModel(nn.Module):
         self.net_config = config_dict['neural_net']
         
         self._init_model_layers()
-        self.opt = optim.Adam(self.parameters(), lr=3e-2)
+        self.opt = optim.Adam(self.parameters(), lr=self.net_config['learning_rate'])
 
 
     def _init_model_layers(self):
@@ -37,15 +37,14 @@ class EvoACModel(nn.Module):
 
 
     def extract_params(self):
-        with torch.no_grad():
-            extracted_parameters = []
-            for individual in self.policy_nets:
-                layer_params = []
-                for layer in individual:
-                    for name, parameter in layer.named_parameters():
-                        layer_params.append(parameter.detach())
-                extracted_parameters.append(layer_params)
-            return extracted_parameters
+        extracted_parameters = []
+        for individual in self.policy_nets:
+            layer_params = []
+            for layer in individual:
+                for name, parameter in layer.named_parameters():
+                    layer_params.append(parameter.detach())
+            extracted_parameters.append(layer_params)
+        return extracted_parameters
 
 
     def insert_params(self, incoming_params):
@@ -62,15 +61,14 @@ class EvoACModel(nn.Module):
 
 
     def extract_grads(self):
-        with torch.no_grad():
-            extracted_grads = []
-            for individual in self.policy_nets:
-                layer_grads = []
-                for layer in individual:
-                    for name, parameter in layer.named_parameters():
-                        layer_grads.append(parameter.grad.detach())
-                extracted_grads.append(layer_grads)
-            return extracted_grads
+        extracted_grads = []
+        for individual in self.policy_nets:
+            layer_grads = []
+            for layer in individual:
+                for name, parameter in layer.named_parameters():
+                    layer_grads.append(parameter.grad.detach())
+            extracted_grads.append(layer_grads)
+        return extracted_grads
 
 
     def forward(self, x, pop_idx):
@@ -93,16 +91,13 @@ class EvoACModel(nn.Module):
         # 2. the value from state s_t 
         return policy, value
 
-    def get_genetic_diversity(self):
-        pass
-
-
     def get_action(self, state, pop_idx):
         policy, value = self(state, pop_idx)
 
         action_prob = F.softmax(policy, dim=-1)
         cat = Categorical(action_prob)
         action = cat.sample()
+        entropy = cat.entropy().mean()
 
         return action, cat.log_prob(action), cat.entropy().mean(), value
     

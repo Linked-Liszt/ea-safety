@@ -7,8 +7,8 @@ import torch.nn.functional as F
 
 # TODO: Handle variable episode sizes
 class EvoACStorage(object):
-    def __init__(self, pop_size, value_coeff=0.5,
-                 entropy_coeff=0.02, reward_discount=0.99):
+    def __init__(self, pop_size, value_coeff,
+                 entropy_coeff, reward_discount=0.99):
         """
 
         :param max_episode_steps: number of steps after the policy gets updated
@@ -74,7 +74,9 @@ class EvoACStorage(object):
 
                 value_losses.append(F.smooth_l1_loss(value, torch.tensor([reward])))
 
-                policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage).mean())
+                policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage))
     
-        loss = (torch.stack(policy_losses).sum() * self.value_coeff) + torch.stack(value_losses).sum() # - self.entropy_coeff * entropy
-        return loss
+        policy_loss_total = torch.stack(policy_losses).sum()
+        value_loss_total = torch.stack(value_losses).sum()
+        loss = (policy_loss_total * self.value_coeff) + value_loss_total #- self.entropy_coeff * entropy
+        return loss, policy_loss_total.item(), value_loss_total.item()

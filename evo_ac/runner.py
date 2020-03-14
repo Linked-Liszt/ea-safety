@@ -59,13 +59,17 @@ class EvoACRunner(object):
                     
                     self.storage.insert_fitness(pop_idx, fitness)
                 
-                self.logger.save_fitnesses(self.model, self.storage.fitnesses, gen_idx)
+                
 
                 self.model.opt.zero_grad()
-                loss = self.storage.get_loss()
+                self.evo.set_params(self.model.extract_params())
+                loss, policy_loss, value_loss = self.storage.get_loss()
                 loss.backward()
                 self.evo.set_grads(self.model.extract_grads())
                 self.model.opt.step()
+
+                self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss, value_loss, gen_idx)
+
                 self.evo.set_fitnesses(self.storage.fitnesses)
 
                 new_pop = self.evo.create_new_pop()

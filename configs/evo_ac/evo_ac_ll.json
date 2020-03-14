@@ -1,25 +1,26 @@
 {
     "experiment": {
         "env": "LunarLander-v2",
-        "num_runs": 1,
+        "num_runs": 10,
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
         "log_name": "evo_ac_lunar_lander_",
-        "print_interval": 10,
+        "print_interval": 1,
         "discord_ping":false,
         "log_run": true
     },
     
     "evo_ac": {
         "pop_size": 10,
-        "value_coeff": 5,
+        "value_coeff": 0.5,
         "entropy_coeff": 0.0,
-        "num_gens": 100,
+        "num_gens": 200,
         "recomb_nums": [4,3,2,1],
-        "learning_rate": 1e-3,
+        "learning_rate": 1e-5,
         "mut_scale":  0.5
     },
 
     "neural_net": {
+        "learning_rate":3e-5,
         "shared": [
             {
                 "type": "Linear",
@@ -30,18 +31,7 @@
                 "type": "ReLU",
                 "params": [], 
                 "kwargs": {}
-            },
-            {
-                "type": "Linear",
-                "params": [256, 256], 
-                "kwargs": {"bias":true}
-            }, 
-            {
-                "type": "ReLU",
-                "params": [], 
-                "kwargs": {}
             }
-
         ],
         "policy":
         [

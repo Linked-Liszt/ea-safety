@@ -16,7 +16,8 @@ if __name__ == '__main__':
 
     for hparam_run_idx in range(300):
         config_dict['experiment']['log_name'] = f'evo_ac_hparam_{hparam_run_idx}'
-        config_dict['evo_ac']['learning_rate'] = random.uniform(1e-2, 1e-4)
+        config_dict['evo_ac']['learning_rate'] = random.uniform(1e-4, 1e-7)
+        config_dict['neural_net']['learning_rate'] = random.uniform(1e-3, 1e-7)
         config_dict['evo_ac']['mut_scale'] = random.uniform(0.2, 1.0)
 
         shared_size = random.randint(0, 1)
