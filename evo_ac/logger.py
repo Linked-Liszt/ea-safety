@@ -69,12 +69,13 @@ class EvoACLogger(object):
         save_dict['experiment_log'] = self.experiment_log
         save_dict['times'] = self.run_end_times
         save_dict['config'] = self.config
+        save_dict['version'] = 'v0'
         pickle.dump(save_dict, open(data_path, 'wb'))
 
     def print_data(self, gen_idx):
         if gen_idx % self.print_interval == 0:
             data_dict = self.run_log[-1]
-            display_str = f'\n\nGen {gen_idx}\n' \
+            display_str = f'\n\nRun {self.run_counter}  Gen {gen_idx}\n' \
                 + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}\n" \
                 + f"Policy Loss: {data_dict['policy_loss']:.2f}  Value Loss: {data_dict['value_loss']:.2f}\n" \
                 + f"Full: {data_dict['fit']}"

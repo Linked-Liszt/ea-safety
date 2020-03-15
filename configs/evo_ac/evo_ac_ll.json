@@ -1,12 +1,12 @@
 {
     "experiment": {
         "env": "LunarLander-v2",
-        "num_runs": 10,
+        "num_runs": 3,
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
         "log_name": "evo_ac_lunar_lander_",
         "print_interval": 1,
-        "discord_ping":false,
-        "log_run": true
+        "discord_ping":true,
+        "log_run": false
     },
     
     "evo_ac": {
@@ -20,7 +20,7 @@
     },
 
     "neural_net": {
-        "learning_rate":3e-5,
+        "learning_rate":1e-4,
         "shared": [
             {
                 "type": "Linear",
