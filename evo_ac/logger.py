@@ -30,7 +30,7 @@ class EvoACLogger(object):
         self.run_end_times.append(self.start_time)
 
 
-    def save_fitnesses(self, model, fitnesses, policy_loss, value_loss, gen):
+    def save_fitnesses(self, model, fitnesses, policy_loss, value_loss, diversity, gen):
         data_dict = {}
         data_dict['gen'] = gen
         data_dict['fit'] = copy.deepcopy(fitnesses)
@@ -40,6 +40,7 @@ class EvoACLogger(object):
         data_dict['fit_std'] = np.std(fitnesses)
         data_dict['policy_loss'] = policy_loss
         data_dict['value_loss'] = value_loss
+        data_dict['diversity'] = diversity
         self.run_log.append(data_dict)
 
         if float(np.max(fitnesses)) > self.best_fitness:
@@ -76,8 +77,8 @@ class EvoACLogger(object):
         if gen_idx % self.print_interval == 0:
             data_dict = self.run_log[-1]
             display_str = f'\n\nRun {self.run_counter}  Gen {gen_idx}\n' \
-                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}\n" \
-                + f"Policy Loss: {data_dict['policy_loss']:.2f}  Value Loss: {data_dict['value_loss']:.2f}\n" \
+                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']} Diversity: {data_dict['diversity']:.2e}\n" \
+                + f"Policy Loss: {data_dict['policy_loss']:.2e}  Value Loss: {data_dict['value_loss']:.2e}\n" \
                 + f"Full: {data_dict['fit']}"
             print(display_str)
             

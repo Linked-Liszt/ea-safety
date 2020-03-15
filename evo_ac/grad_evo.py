@@ -9,9 +9,9 @@ class EvoACEvoAlg(object):
         self.net_config = config_dict['neural_net']
 
         #CONSTANTS
-        self.num_mutate = self.evo_config['recomb_nums'] # [4,3,2,1]
-        self.learning_rate = self.evo_config['learning_rate'] #1e-3
-        self.mut_scale = self.evo_config['mut_scale'] #0.5
+        self.num_mutate = self.evo_config['recomb_nums']
+        self.learning_rate = self.evo_config['learning_rate']
+        self.mut_scale = self.evo_config['mut_scale']
 
     def set_params(self, params):
         self.params = params
@@ -31,6 +31,22 @@ class EvoACEvoAlg(object):
             self.parent_params.append(copy.deepcopy(self.params[pop_idx]))
             self.parent_grads.append(copy.deepcopy(self.grads[pop_idx]))
     
+    def measure_diversity(self):
+        num_parameters = 0
+        parameter_diverage = 0
+        for layer_idx in range(len(self.params[0])):
+            layer_size = torch.prod(torch.tensor(self.params[0][layer_idx].size())).item()
+            layer_max = self.params[0][layer_idx]
+            layer_min = self.params[0][layer_idx]
+            for pop_idx in range(len(self.params)):
+                layer_max = torch.max(layer_max, self.params[pop_idx][layer_idx])
+                layer_min = torch.min(layer_min, self.params[pop_idx][layer_idx])
+            
+            layer_diff = layer_max - layer_min
+            num_parameters += layer_size
+            parameter_diverage += torch.sum(layer_diff).item()
+
+        return parameter_diverage / num_parameters
     
     def create_new_pop(self):
         self.select_parents()

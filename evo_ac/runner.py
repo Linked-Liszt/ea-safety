@@ -68,7 +68,10 @@ class EvoACRunner(object):
                 self.evo.set_grads(self.model.extract_grads())
                 self.model.opt.step()
 
-                self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss, value_loss, gen_idx)
+
+                self.logger.save_fitnesses(self.model, self.storage.fitnesses, 
+                                            policy_loss, value_loss, self.evo.measure_diversity(),
+                                            gen_idx)
 
                 self.evo.set_fitnesses(self.storage.fitnesses)
 

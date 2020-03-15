@@ -46,6 +46,9 @@ def parse_arguments():
     parser.add_argument('--f', action='store_true', dest='folder_flag',
                          help='scan entire folder of logs')
 
+    parser.add_argument('--i', action='store_true', dest='ignore_failed',
+                         help='ignore runs that didn\'t solve the task')
+
     return parser.parse_args()
 
 def scan_folder(folder_paths):
@@ -73,6 +76,7 @@ if __name__ == '__main__':
     else:
         log_paths = parser.log_paths
 
+    plotted_log_paths = []
     episodes = []
     bests = []
     means = []
@@ -84,6 +88,10 @@ if __name__ == '__main__':
     
         episode, best, mean, median, pop_std, std = load_data_v0(nn_dict)
 
+        if parser.ignore_failed and best[-1] < 50:
+            continue
+
+        plotted_log_paths.append(path)
         episodes.append(episode)
         bests.append(best)
         means.append(mean)
@@ -98,7 +106,7 @@ if __name__ == '__main__':
     ax_l.set_ylabel("Population Fitness", fontsize=15)
     ax_l.set_xlabel("Episodes", fontsize=15)
 
-    for path_idx, path in enumerate(log_paths):
+    for path_idx, path in enumerate(plotted_log_paths):
         log_name = get_log_name(path)
 
         ax_h.plot(episodes[path_idx], bests[path_idx], label=log_name)
