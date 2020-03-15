@@ -3,24 +3,24 @@
         "env": "LunarLander-v2",
         "num_runs": 10,
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
-        "log_name": "evo_ac_ll_high_pop",
+        "log_name": "evo_ac_ll_high_mut",
         "print_interval": 1,
         "discord_ping":true,
-        "log_run": true
+        "log_run": false
     },
     
     "evo_ac": {
-        "pop_size": 20,
-        "value_coeff": 1.0,
+        "pop_size": 10,
+        "value_coeff": 1,
         "entropy_coeff": 0.0,
         "num_gens": 200,
-        "recomb_nums": [4,4,3,3,2,2,1,1],
-        "learning_rate": 1e-6,
-        "mut_scale":  0.3
+        "recomb_nums": [4,3,2,1],
+        "learning_rate": 1e-5,
+        "mut_scale":  1.5
     },
 
     "neural_net": {
-        "learning_rate":1e-6,
+        "learning_rate":1e-4,
         "shared": [
             {
                 "type": "Linear",
@@ -52,6 +52,16 @@
             }
         ],
         "value": [
+            {
+                "type": "Linear",
+                "params": [256, 256], 
+                "kwargs": {"bias":true}
+            },
+            {
+                "type": "ReLU",
+                "params": [], 
+                "kwargs": {}
+            },
             {
                 "type": "Linear",
                 "params": [256, 1], 
