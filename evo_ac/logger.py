@@ -61,7 +61,12 @@ class EvoACLogger(object):
         
     def _export_data(self, export_name):
         data_path = self.directory + '/' + self.name + '_' \
-                + export_name + '.p'
+                + export_name
+         
+        if os.path.isfile(data_path):
+            data_path += datetime.now().strftime("%d_%H_%M_%S")
+
+        data_path += '.p'
 
         save_dict = {}
         save_dict['start_time'] = self.start_time

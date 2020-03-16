@@ -72,3 +72,6 @@ class EvoACEvoAlg(object):
 
         norm_dist = torch.distributions.normal.Normal(locs, scales)
         return norm_dist.sample()
+
+    def end_generation(self):
+        self.learning_rate = self.learning_rate * self.evo_config['lr_decay']

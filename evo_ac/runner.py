@@ -78,6 +78,8 @@ class EvoACRunner(object):
                 new_pop = self.evo.create_new_pop()
 
                 self.model.insert_params(new_pop)
+                self.evo.end_generation()
+                # End of generation
 
                 self.logger.print_data(gen_idx)
             
