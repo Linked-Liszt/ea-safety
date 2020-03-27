@@ -33,6 +33,7 @@ class EvoACStorage(object):
         self.log_probs = [[] for _ in range(self.pop_size)]
         self.rewards = [[] for _ in range(self.pop_size)]
         self.values = [[] for _ in range(self.pop_size)]
+        self.entropies = 0
         self.fitnesses = [0] * self.pop_size
         
 
@@ -43,10 +44,11 @@ class EvoACStorage(object):
         return tensor
 
     
-    def insert(self, pop_idx, reward, action, log_prob, value):
+    def insert(self, pop_idx, reward, action, log_prob, entropy, value):
         self.rewards[pop_idx].append(reward)
         self.actions[pop_idx].append(action)
         self.log_probs[pop_idx].append(log_prob)
+        self.entropies += entropy
         self.values[pop_idx].append(value)
 
     def insert_fitness(self, pop_idx, fitness):
@@ -78,5 +80,5 @@ class EvoACStorage(object):
     
         policy_loss_total = torch.stack(policy_losses).sum()
         value_loss_total = torch.stack(value_losses).sum()
-        loss = (policy_loss_total * self.value_coeff) + value_loss_total #- self.entropy_coeff * entropy
+        loss = (policy_loss_total * self.value_coeff) + value_loss_total - (self.entropy_coeff * self.entropies)
         return loss, policy_loss_total.item(), value_loss_total.item()

@@ -1,12 +1,13 @@
 {
     "experiment": {
-        "env": "LunarLander-v2",
+        "env": "BipedalWalker-v3",
         "num_runs": 10,
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
-        "log_name": "evo_ac_ll_high_decay_2",
+        "log_name": "evo_ac_hc",
         "print_interval": 1,
         "discord_ping":true,
-        "log_run": false
+        "log_run": false,
+        "env_type": "cont"
     },
     
     "evo_ac": {
@@ -25,7 +26,7 @@
         "shared": [
             {
                 "type": "Linear",
-                "params": [8, 64], 
+                "params": [24, 128], 
                 "kwargs": {"bias":true}
             }, 
             {
@@ -38,7 +39,7 @@
         [
             {
                 "type": "Linear",
-                "params": [64, 64], 
+                "params": [128, 128], 
                 "kwargs": {"bias":true}
             },
             {
@@ -48,14 +49,14 @@
             },
             {
                 "type": "Linear",
-                "params": [64, 4], 
+                "params": [128, 4], 
                 "kwargs": {"bias":true}
             }
         ],
         "value": [
             {
                 "type": "Linear",
-                "params": [64, 1], 
+                "params": [128, 1], 
                 "kwargs": {"bias":true}
             }
         ]

@@ -52,7 +52,7 @@ class EvoACRunner(object):
                         obs, reward, done, info = self.env.step(action.cpu().numpy())
                         fitness += reward
 
-                        self.storage.insert(pop_idx, reward, action, log_p_a, value)
+                        self.storage.insert(pop_idx, reward, action, log_p_a, entropy, value)
                     
                         if done:
                             break

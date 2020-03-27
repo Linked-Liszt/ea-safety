@@ -15,13 +15,15 @@ if __name__ == '__main__':
 
 
     for hparam_run_idx in range(300):
+        config_dict['experiment']['num_runs'] = 3
         config_dict['experiment']['log_path'] = \
             "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search"
         config_dict['experiment']['log_name'] = f'evo_ac_hparam_{hparam_run_idx}'
-        config_dict['evo_ac']['learning_rate'] = random.uniform(1e-6, 1e-8)
-        config_dict['neural_net']['learning_rate'] = random.uniform(1e-6, 1e-8)
+        config_dict['evo_ac']['learning_rate'] = random.uniform(1e-5, 1e-7)
+        config_dict['neural_net']['learning_rate'] = random.uniform(1e-4, 1e-6)
         config_dict['evo_ac']['mut_scale'] = random.uniform(0.1, 1.0)
-        config_dict['evo_ac']['lr_decay'] = random.uniform(0.8, 1.0)
+        config_dict['evo_ac']['lr_decay'] = random.uniform(0.95, 1.0)
+        config_dict['entropy_coeff']= random.uniform(0.0, 0.04)
 
         shared_size = random.randint(0, 1)
         hidden_size = random.randint(1, 8) * 64
