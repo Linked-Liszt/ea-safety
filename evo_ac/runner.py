@@ -6,6 +6,7 @@ from evo_ac.storage import EvoACStorage
 from evo_ac.grad_evo import EvoACEvoAlg
 from evo_ac.logger import EvoACLogger
 import pickle
+import time
 
 
 class EvoACRunner(object):
@@ -16,6 +17,9 @@ class EvoACRunner(object):
         self.config_exp = config['experiment']
 
         self.env = gym.make(self.config_exp['env'])
+
+        print(self.env.observation_space)
+        print(self.env.action_space)
         
         self.logger = EvoACLogger(config)
         

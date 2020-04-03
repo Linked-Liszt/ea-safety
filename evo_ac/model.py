@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
+from torch.distributions import Normal
 
 
 class EvoACModel(nn.Module):
@@ -15,6 +16,8 @@ class EvoACModel(nn.Module):
         self.evo_config = config_dict['evo_ac']
         self.net_config = config_dict['neural_net']
         
+        self.action_space_disc = config_dict['experiment']['env_type'] == 'discrete'
+
         self._init_model_layers()
         self.opt = optim.Adam(self.parameters(), lr=self.net_config['learning_rate'])
 
@@ -94,12 +97,18 @@ class EvoACModel(nn.Module):
     def get_action(self, state, pop_idx):
         policy, value = self(state, pop_idx)
 
-        action_prob = F.softmax(policy, dim=-1)
-        cat = Categorical(action_prob)
-        action = cat.sample()
-        entropy = cat.entropy().mean()
+        if self.action_space_disc:
+            action_prob = F.softmax(policy, dim=-1)
+            dist = Categorical(action_prob)
+            action = dist.sample()
+        else:
+            split_idx = int(policy.size()[0] / 2)
+            mus = torch.tanh(policy[:split_idx])
+            sigmas = F.softplus(policy[split_idx:])
+            dist = Normal(mus, sigmas)
+            action = dist.sample()
 
-        return action, cat.log_prob(action), cat.entropy().mean(), value
+        return action.clamp(-1, 1), dist.log_prob(action), dist.entropy().mean(), value
     
 
     def _add_layer(self, layer_type, layer_params, layer_kwargs):
