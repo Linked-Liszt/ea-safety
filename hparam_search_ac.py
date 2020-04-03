@@ -15,10 +15,17 @@ if __name__ == '__main__':
 
 
     for hparam_run_idx in range(300):
+        lr_1 = random.uniform(1e-3, 1e-5)
+        lr_2 = random.uniform(1e-5, 1e-8)
+
+        config_dict['learning_rate'] = [lr_1, lr_2]
+
+       
         config_dict['experiment']['num_runs'] = 3
         config_dict['experiment']['log_path'] = \
             "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search"
         config_dict['experiment']['log_name'] = f'evo_ac_hparam_{hparam_run_idx}'
+        """
         config_dict['evo_ac']['learning_rate'] = random.uniform(1e-5, 1e-7)
         config_dict['neural_net']['learning_rate'] = random.uniform(1e-4, 1e-6)
         config_dict['evo_ac']['mut_scale'] = random.uniform(0.1, 1.0)
@@ -126,6 +133,6 @@ if __name__ == '__main__':
         config_dict['neural_net']['shared'] = shared
         config_dict['neural_net']['policy'] = policy
         config_dict['neural_net']['value'] = value
-
+        """
         runner = EvoACRunner(config_dict)
         runner.run_experiment()

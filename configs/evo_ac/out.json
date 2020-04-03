@@ -1,7 +1,7 @@
 {
     "evo_ac": {
         "entropy_coeff": 0.0,
-        "learning_rate": 1e-05,
+        "learning_rate": [1e-04, 1e-6],
         "mut_scale": 0.5,
         "num_gens": 200,
         "pop_size": 10,
@@ -17,10 +17,10 @@
     "experiment": {
         "discord_ping": true,
         "env": "LunarLander-v2",
-        "log_name": "evo_ac_ll_rerun",
+        "log_name": "evo_ac_ll_variable_lr_2",
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
         "log_run": false,
-        "num_runs": 10,
+        "num_runs": 5,
         "print_interval": 1
     },
     "neural_net": {
