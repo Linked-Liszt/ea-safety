@@ -105,7 +105,7 @@ class EvoACModel(nn.Module):
             split_idx = int(policy.size()[0] / 2)
             mus = torch.tanh(policy[:split_idx])
             sigmas = F.softplus(policy[split_idx:])
-            dist = Normal(mus, sigmas)
+            dist = Normal(mus, sigmas + 0.001)
             action = dist.sample()
 
         return action.clamp(-0.999, 0.999), dist.log_prob(action), dist.entropy().mean(), value

@@ -63,13 +63,17 @@ class EvoACRunner(object):
                         
                             if done:
                                 break
-                        except:
+                        except Exception as e:
+                            if e is KeyboardInterrupt:
+                                raise KeyboardInterrupt from e
+
                             self.env = gym.make(self.config_exp['env'])
                             obs = self.env.reset()
                             fitness = 0.0
                             self.storage.remove_eval(pop_idx)
                             print(action)
-                    
+                            input()
+
                     self.storage.insert_fitness(pop_idx, fitness)
                 
                 

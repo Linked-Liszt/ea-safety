@@ -19,6 +19,8 @@ if __name__ == '__main__':
         lr_2 = random.uniform(1e-5, 1e-8)
 
         config_dict['learning_rate'] = [lr_1, lr_2]
+        config_dict['neural_net']['learning_rate'] = random.uniform(1e-4, 1e-6)
+        config_dict['entropy_coeff']= random.uniform(0.0, 0.04)
 
        
         config_dict['experiment']['num_runs'] = 3
@@ -30,7 +32,7 @@ if __name__ == '__main__':
         config_dict['neural_net']['learning_rate'] = random.uniform(1e-4, 1e-6)
         config_dict['evo_ac']['mut_scale'] = random.uniform(0.1, 1.0)
         config_dict['evo_ac']['lr_decay'] = random.uniform(0.95, 1.0)
-        config_dict['entropy_coeff']= random.uniform(0.0, 0.04)
+        
 
         shared_size = random.randint(0, 1)
         hidden_size = random.randint(1, 8) * 64
