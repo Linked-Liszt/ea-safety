@@ -108,7 +108,7 @@ class EvoACModel(nn.Module):
             dist = Normal(mus, sigmas)
             action = dist.sample()
 
-        return action.clamp(-1, 1), dist.log_prob(action), dist.entropy().mean(), value
+        return action.clamp(-0.999, 0.999), dist.log_prob(action), dist.entropy().mean(), value
     
 
     def _add_layer(self, layer_type, layer_params, layer_kwargs):

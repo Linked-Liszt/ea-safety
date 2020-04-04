@@ -51,6 +51,14 @@ class EvoACStorage(object):
         self.entropies += entropy
         self.values[pop_idx].append(value)
 
+
+    def remove_eval(self, pop_idx):
+        self.rewards[pop_idx] = []
+        self.actions[pop_idx] = []
+        self.log_probs[pop_idx] = []
+        self.entropies = 0
+        self.values[pop_idx] = []
+
     def insert_fitness(self, pop_idx, fitness):
         self.fitnesses[pop_idx] = fitness
     

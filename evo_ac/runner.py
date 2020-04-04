@@ -20,6 +20,9 @@ class EvoACRunner(object):
 
         print(self.env.observation_space)
         print(self.env.action_space)
+        print(self.env.observation_space)
+        print(self.env.action_space.high)
+        print(self.env.action_space.low)
         
         self.logger = EvoACLogger(config)
         
@@ -48,18 +51,23 @@ class EvoACRunner(object):
                 for pop_idx in range(self.config_evo['pop_size']):
                     obs = self.env.reset()
 
-                    fitness = 0
+                    fitness = 0.0
 
                     while True:
-                        action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), pop_idx)
+                        try:
+                            action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), pop_idx)
+                            obs, reward, done, info = self.env.step(action.cpu().numpy())
+                            fitness += reward
 
-                        obs, reward, done, info = self.env.step(action.cpu().numpy())
-                        fitness += reward
-
-                        self.storage.insert(pop_idx, reward, action, log_p_a, entropy, value)
-                    
-                        if done:
-                            break
+                            self.storage.insert(pop_idx, reward, action, log_p_a, entropy, value)
+                        
+                            if done:
+                                break
+                        except:
+                            self.env = gym.make(self.config_exp['env'])
+                            obs = self.env.reset()
+                            fitness = 0.0
+                            self.storage.remove_eval(pop_idx)
                     
                     self.storage.insert_fitness(pop_idx, fitness)
                 
