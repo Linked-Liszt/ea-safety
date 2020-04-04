@@ -68,6 +68,7 @@ class EvoACRunner(object):
                             obs = self.env.reset()
                             fitness = 0.0
                             self.storage.remove_eval(pop_idx)
+                            print(action)
                     
                     self.storage.insert_fitness(pop_idx, fitness)
                 

@@ -25,7 +25,7 @@
         "env_type": "cont"
     },
     "neural_net": {
-        "learning_rate": 0.0001,
+        "learning_rate": 0.00001,
         "policy": [
             {
                 "kwargs": {
