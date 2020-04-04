@@ -16,7 +16,7 @@
     },
     "experiment": {
         "discord_ping": true,
-        "env": "BipedalWalker-v3",
+        "env": "MountainCarContinuous-v0",
         "log_name": "evo_ac_bw",
         "log_path": "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/evo_ac",
         "log_run": false,
@@ -33,22 +33,7 @@
                 },
                 "params": [
                     256,
-                    256
-                ],
-                "type": "Linear"
-            },
-            {
-                "kwargs": {},
-                "params": [],
-                "type": "Tanh"
-            },
-            {
-                "kwargs": {
-                    "bias": true
-                },
-                "params": [
-                    256,
-                    8
+                    2
                 ],
                 "type": "Linear"
             }
@@ -59,7 +44,7 @@
                     "bias": true
                 },
                 "params": [
-                    24,
+                    2,
                     256
                 ],
                 "type": "Linear"
@@ -71,21 +56,6 @@
             }
         ],
         "value": [
-            {
-                "kwargs": {
-                    "bias": true
-                },
-                "params": [
-                    256,
-                    256
-                ],
-                "type": "Linear"
-            },
-            {
-                "kwargs": {},
-                "params": [],
-                "type": "Tanh"
-            },
             {
                 "kwargs": {
                     "bias": true
