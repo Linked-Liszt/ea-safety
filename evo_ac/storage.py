@@ -78,6 +78,12 @@ class EvoACStorage(object):
                 value_losses.append(F.smooth_l1_loss(value, torch.tensor([reward])))
 
                 policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage).mean())
+
+        all_policy_loss = torch.stack(policy_losses).sum()
+        all_value_loss = torch.stack(value_losses).sum()
+
+        policy_loss_log = all_policy_loss.item()
+        value_loss_log = all_value_loss.item()
     
-        loss = (torch.stack(policy_losses).sum() * self.value_coeff) + torch.stack(value_losses).sum() - (self.entropy_coeff * self.entropies)
-        return loss
+        loss = (all_policy_loss * self.value_coeff) + all_value_loss - (self.entropy_coeff * self.entropies)
+        return loss, policy_loss_log, value_loss_log
