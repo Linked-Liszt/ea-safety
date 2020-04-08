@@ -22,7 +22,7 @@ class EvoACRunner(object):
         value_coeff = self.config_evo['value_coeff']
         entropy_coff = self.config_evo['entropy_coeff']
 
-        self.storage = EvoACStorage(num_pop)
+        self.storage = EvoACStorage(num_pop, config)
         self.evo = EvoACEvoAlg(config)
         self.evo.set_params(self.model.extract_params())
 
@@ -42,7 +42,7 @@ class EvoACRunner(object):
                     obs, reward, done, info = self.env.step(action.cpu().numpy())
                     fitness += reward
 
-                    self.storage.insert(pop_idx, reward, action, log_p_a, value)
+                    self.storage.insert(pop_idx, reward, action, log_p_a, value, entropy)
                 
                     if done:
                         break

@@ -1,5 +1,6 @@
 import copy
 import torch
+import random
 import numpy as np
 
 
@@ -11,6 +12,7 @@ class EvoACEvoAlg(object):
         #CONSTANTS
         self.num_mutate = self.evo_config['recomb_nums'] # [4,3,2,1]
         self.learning_rate = self.evo_config['learning_rate'] #1e-3
+        self.lr_decay = self.evo_config['lr_decay']
         self.mut_scale = self.evo_config['mut_scale'] #0.5
 
     def set_params(self, params):
@@ -49,10 +51,14 @@ class EvoACEvoAlg(object):
     
 
     def mutate(self, param, grad):
-        adjusted_grad = self.learning_rate * grad
+        learning_rate = random.uniform(self.learning_rate[0], self.learning_rate[1])
+        adjusted_grad = learning_rate * grad
 
         locs = param - adjusted_grad
         scales = torch.abs(adjusted_grad) * self.mut_scale
 
         norm_dist = torch.distributions.normal.Normal(locs, scales)
         return norm_dist.sample()
+
+    def decary_lr(self):
+        self.learning_rate = self.lr_decay * self.learning_rate

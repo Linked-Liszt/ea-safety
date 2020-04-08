@@ -7,8 +7,7 @@ import torch.nn.functional as F
 
 # TODO: Handle variable episode sizes
 class EvoACStorage(object):
-    def __init__(self, pop_size, value_coeff=0.5,
-                 entropy_coeff=0.02, reward_discount=0.99):
+    def __init__(self, pop_size, config):
         """
 
         :param max_episode_steps: number of steps after the policy gets updated
@@ -21,14 +20,17 @@ class EvoACStorage(object):
 
         self.pop_size = pop_size
 
-        self.value_coeff = value_coeff
-        self.entropy_coeff = entropy_coeff
-        self.reward_discount = reward_discount
+        self.evo_ac_config = config['evo_ac']
+
+        self.value_coeff = self.evo_ac_config['value_coeff']
+        self.entropy_coeff = self.evo_ac_config['entropy_coeff']
+        self.reward_discount = 0.99
 
         # initialize the buffers with zeros
         self.reset_storage()
 
     def reset_storage(self):
+        self.entropies = 0
         self.actions = [[] for _ in range(self.pop_size)]
         self.log_probs = [[] for _ in range(self.pop_size)]
         self.rewards = [[] for _ in range(self.pop_size)]
@@ -43,9 +45,10 @@ class EvoACStorage(object):
         return tensor
 
     
-    def insert(self, pop_idx, reward, action, log_prob, value):
+    def insert(self, pop_idx, reward, action, log_prob, value, entropy):
         self.rewards[pop_idx].append(reward)
         self.actions[pop_idx].append(action)
+        self.entropies += entropy
         self.log_probs[pop_idx].append(log_prob)
         self.values[pop_idx].append(value)
 
@@ -76,5 +79,5 @@ class EvoACStorage(object):
 
                 policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage).mean())
     
-        loss = (torch.stack(policy_losses).sum() * self.value_coeff) + torch.stack(value_losses).sum() # - self.entropy_coeff * entropy
+        loss = (torch.stack(policy_losses).sum() * self.value_coeff) + torch.stack(value_losses).sum() - (self.entropy_coeff * self.entropies)
         return loss
