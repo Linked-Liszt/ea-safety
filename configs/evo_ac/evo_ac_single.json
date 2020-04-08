@@ -1,10 +1,9 @@
 {
     "experiment": {
-        "num_gens": 40,
-        "num_runs": 5,
+        "num_gens": 2000,
+        "num_runs": 30,
         "log_name": "evo_ac_cart_single",
         "log_path": "checkpoints/evo_ac",
-        "env_type": "discrete",
         "env": "CartPole-v1",
         "log_run": false,
         "print_interval": 1

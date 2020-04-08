@@ -15,6 +15,15 @@ class EvoACEvoAlg(object):
         self.lr_decay = self.evo_config['lr_decay']
         self.mut_scale = self.evo_config['mut_scale'] #0.5
 
+        num_children = 0
+        if self.evo_config['hold_elite']:
+            num_children += 1
+        num_children += sum(self.num_mutate)
+
+        if num_children != self.evo_config['pop_size']:
+            raise RuntimeError(f"Number children ({num_children}) created does" +
+                                f" not match population size ({self.evo_config['pop_size']})")
+
     def set_params(self, params):
         self.params = params
 
@@ -37,6 +46,9 @@ class EvoACEvoAlg(object):
     def create_new_pop(self):
         self.select_parents()
         next_gen = []
+        if self.evo_config['hold_elite']:
+            next_gen.append(self.parent_params[0])
+
         for parent_idx in range(len(self.num_mutate)):
             parent_count = self.num_mutate[parent_idx]
             for child_count in range(parent_count):
