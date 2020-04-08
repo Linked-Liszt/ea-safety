@@ -4,6 +4,7 @@ from evo_ac.model import EvoACModel
 import torch
 from evo_ac.storage import EvoACStorage
 from evo_ac.grad_evo import EvoACEvoAlg
+from evo_ac.logger import EvoACLogger
 
 
 class EvoACRunner(object):
@@ -15,7 +16,8 @@ class EvoACRunner(object):
         
         
        
-        self.env = gym.make(self.config_evo['env'])
+        self.env = gym.make(self.config_exp['env'])
+        self.logger = EvoACLogger(config)
 
         
     def train(self):
@@ -37,6 +39,7 @@ class EvoACRunner(object):
                         fitness += reward
 
                         self.storage.insert(pop_idx, reward, action, log_p_a, value, entropy)
+
                     
                         if done:
                             break
@@ -51,9 +54,17 @@ class EvoACRunner(object):
 
                 new_pop = self.evo.create_new_pop()
 
+                self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss_log, 
+                                            value_loss_log, gen_idx)
+                self.logger.print_data(gen_idx)
+
                 self.model.insert_params(new_pop)
 
-                print(self.storage.fitnesses)
+            self.logger.end_run()
+        self.logger.end_experiment()
+
+                
+
 
     def reset_experiment(self):
         obs_size = np.prod(np.shape(self.env.observation_space))
