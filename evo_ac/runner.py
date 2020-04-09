@@ -34,11 +34,8 @@ class EvoACRunner(object):
                     fitness = 0
 
                     while True:
-                        runner_pop = pop_idx
-                        if 'single' in self.config_exp and self.config_exp['single']:
-                            runner_pop = 0
 
-                        action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), runner_pop)
+                        action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), pop_idx)
 
                         self.timesteps += 1
 
@@ -53,10 +50,7 @@ class EvoACRunner(object):
                     
                     self.storage.insert_fitness(pop_idx, fitness)
                 
-                if 'single' in self.config_exp and self.config_exp['single']:
-                    self.update_single()
-                else:
-                    self.update_evo_ac()
+                self.update_evo_ac()
 
                 if self.timesteps > self.config_exp['timesteps']:
                     break

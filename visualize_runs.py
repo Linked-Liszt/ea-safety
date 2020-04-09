@@ -10,23 +10,37 @@ import os
 def load_data_v0(log_dict):
     print("Loading log...")
     num_runs = len(nn_dict['experiment_log'])
-    len_runs = len(nn_dict['experiment_log'][0])
+    len_runs = 500
 
-    gens = np.arange(0, len_runs)
-    best = np.zeros((num_runs, len_runs))
-    means = np.zeros((num_runs, len_runs))
-    medians = np.zeros((num_runs, len_runs))
-    pop_stds = np.zeros((num_runs, len_runs))
-    timesteps = np.zeros((num_runs, len_runs))
+    gens = []
+    best = []
+    means = []
+    medians = []
+    pop_stds = []
+    timesteps = []
 
 
     for run_idx, run_log in enumerate(nn_dict['experiment_log']):
+        gens_run = []
+        best_run = []
+        means_run = []
+        medians_run = []
+        pop_stds_run = []
+        timesteps_run = []
         for gen_idx, data_dict in enumerate(run_log):
-            timesteps[run_idx][gen_idx] = data_dict['timesteps']
-            best[run_idx][gen_idx] = data_dict['fit_best']
-            means[run_idx][gen_idx] = data_dict['fit_mean']
-            medians[run_idx][gen_idx] = data_dict['fit_med']
-            pop_stds[run_idx][gen_idx] = data_dict['fit_std']
+            gens_run.append(gen_idx)
+            best_run.append(data_dict['fit_best'])
+            means_run.append(data_dict['fit_mean'])
+            medians_run.append(data_dict['fit_med'])
+            pop_stds_run.append(data_dict['fit_std'])
+            timesteps_run.append(data_dict['timesteps'])
+        
+        gens.append(gens_run)
+        best.append(best_run)
+        means.append(means_run)
+        medians.append(medians_run)
+        pop_stds.append(pop_stds_run)
+        timesteps.append(timesteps_run)
 
     print("Log Loaded.")
     return timesteps, best, means, medians, pop_stds, stds
@@ -101,20 +115,24 @@ if __name__ == '__main__':
     if not parser.folder_flag:
         solve_score = 500.0
         solve_times = []
+        solve_generations = []
         did_solve = 0
 
         for path_idx, path in enumerate(plotted_log_paths):
             solves = []
             for run_idx, runs in enumerate(bests[path_idx]):
-                for best, timestep in zip(bests[path_idx][run_idx], timesteps[path_idx][run_idx]):
+                for gen_idx, (best, timestep) in enumerate(zip(bests[path_idx][run_idx], timesteps[path_idx][run_idx])):
                     if best >= solve_score:
                         solves.append(timestep)
+                        solve_generations.append(gen_idx)
                         did_solve += 1
                         break
             solve_times.append(solves)
                 
         print(f"Num Runs: {len(bests[0])}")
         print(f"Num Solves: {did_solve}")
+        print(f"Gens Till Solve {np.mean(solve_generations)}")
+        print(f"STD Gens Till Solve {np.std(solve_generations)}")
         print(f"Average Solve Timesteps: {np.mean(solve_times)}" )
         print(f"Standard Deviation of Solve Timesteps: {np.std(solve_times)}")
 
