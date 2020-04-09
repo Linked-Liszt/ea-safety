@@ -1,0 +1,20 @@
+{
+    "experiment": {
+        "num_gens": 200,
+        "num_runs": 30,
+        "num_envs": 5,
+        "env": "CartPole-v1",
+        "log_name": "cartpole_baseline",
+        "log_run": false,
+        "print_interval": 1,
+        "log_path": "checkpoints/baselines"
+    },
+
+    "evo_ac": {
+
+    },
+
+    "neural_net": {
+        
+    }
+}

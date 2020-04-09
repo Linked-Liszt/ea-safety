@@ -61,6 +61,8 @@ def get_log_name(path):
         log_name = path[path.rfind('/') + 1:path.rfind('.')]
     return log_name
 
+
+
 if __name__ == '__main__':
     parser = parse_arguments()
 
@@ -94,15 +96,39 @@ if __name__ == '__main__':
         stds.append(std)
 
 
-    # Graph data
-    fig, (ax_h, ax_l) = plt.subplots(2, 1, figsize=(13,7), sharex=True)
-    ax_h.set_ylabel("Best Fitness", fontsize=15)
-    ax_l.set_ylabel("Population Fitness", fontsize=15)
-    ax_l.set_xlabel("Episodes", fontsize=15)
+
+    # Calculate the average and variance of solve time. 
+    if not parser.folder_flag:
+        solve_score = 500.0
+        solve_times = []
+        did_solve = 0
+
+        for path_idx, path in enumerate(plotted_log_paths):
+            solves = []
+            for run_idx, runs in enumerate(bests[path_idx]):
+                for best, timestep in zip(bests[path_idx][run_idx], timesteps[path_idx][run_idx]):
+                    if best >= solve_score:
+                        solves.append(timestep)
+                        did_solve += 1
+                        break
+            solve_times.append(solves)
+                
+        print(f"Num Runs: {len(bests[0])}")
+        print(f"Num Solves: {did_solve}")
+        print(f"Average Solve Timesteps: {np.mean(solve_times)}" )
+        print(f"Standard Deviation of Solve Timesteps: {np.std(solve_times)}")
+
+
+
+        # Graph data
+        fig, (ax_h, ax_l) = plt.subplots(2, 1, figsize=(13,7), sharex=True)
+        ax_h.set_ylabel("Best Fitness", fontsize=15)
+        ax_l.set_ylabel("Population Fitness", fontsize=15)
+        ax_l.set_xlabel("Timesteps", fontsize=15)
 
 
     for path_idx, path in enumerate(plotted_log_paths):
-        for run_idx, runs in enumerate(bests[0]):
+        for run_idx, runs in enumerate(bests[path_idx]):
             run_name = f"Run: run_idx {run_idx}"
 
             ax_h.plot(timesteps[path_idx][run_idx], bests[path_idx][run_idx], label=run_name)
