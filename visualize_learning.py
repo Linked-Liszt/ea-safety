@@ -10,32 +10,40 @@ import os
 def load_data_v0(log_dict):
     print("Loading log...")
     num_runs = len(nn_dict['experiment_log'])
-    len_runs = len(nn_dict['experiment_log'][0])
+    len_runs = 500
 
-    gens = np.arange(0, len_runs)
-    best = np.zeros((num_runs, len_runs))
-    means = np.zeros((num_runs, len_runs))
-    medians = np.zeros((num_runs, len_runs))
-    pop_stds = np.zeros((num_runs, len_runs))
+    gens = []
+    best = []
+    means = []
+    medians = []
+    pop_stds = []
+    timesteps = []
 
 
     for run_idx, run_log in enumerate(nn_dict['experiment_log']):
+        gens_run = []
+        best_run = []
+        means_run = []
+        medians_run = []
+        pop_stds_run = []
+        timesteps_run = []
         for gen_idx, data_dict in enumerate(run_log):
-            best[run_idx][gen_idx] = data_dict['fit_best']
-            means[run_idx][gen_idx] = data_dict['fit_mean']
-            medians[run_idx][gen_idx] = data_dict['fit_med']
-            pop_stds[run_idx][gen_idx] = data_dict['fit_std']
+            gens_run.append(gen_idx)
+            best_run.append(data_dict['fit_best'])
+            means_run.append(data_dict['fit_mean'])
+            medians_run.append(data_dict['fit_med'])
+            pop_stds_run.append(data_dict['fit_std'])
+            timesteps_run.append(data_dict['timesteps'])
+        
+        gens.append(gens_run)
+        best.append(best_run)
+        means.append(means_run)
+        medians.append(medians_run)
+        pop_stds.append(pop_stds_run)
+        timesteps.append(timesteps_run)
 
-    episodes = np.array(gens) * log_dict['config']['evo_ac']['pop_size']
-
-    
-    best = np.mean(best, axis=0)
-    means = np.mean(means, axis=0)
-    medians = np.mean(medians, axis=0)
-    pop_stds = np.mean(pop_stds, axis=0)
-    stds = np.std(means, axis=0)
     print("Log Loaded.")
-    return episodes, best, means, medians, pop_stds, stds
+    return timesteps, best, means, medians, pop_stds, stds
 
 
 def parse_arguments():
@@ -67,6 +75,8 @@ def get_log_name(path):
         log_name = path[path.rfind('/') + 1:path.rfind('.')]
     return log_name
 
+
+
 if __name__ == '__main__':
     parser = parse_arguments()
 
@@ -77,7 +87,7 @@ if __name__ == '__main__':
         log_paths = parser.log_paths
 
     plotted_log_paths = []
-    episodes = []
+    timesteps = []
     bests = []
     means = []
     medians = []
@@ -86,13 +96,13 @@ if __name__ == '__main__':
     for path in log_paths:
         nn_dict = pickle.load(open(path, 'rb'))
     
-        episode, best, mean, median, pop_std, std = load_data_v0(nn_dict)
+        timestep, best, mean, median, pop_std, std = load_data_v0(nn_dict)
 
         if parser.ignore_failed and best[-1] < 50:
             continue
 
         plotted_log_paths.append(path)
-        episodes.append(episode)
+        timesteps.append(timestep)
         bests.append(best)
         means.append(mean)
         medians.append(median)
@@ -100,17 +110,45 @@ if __name__ == '__main__':
         stds.append(std)
 
 
-    # Graph data
-    fig, (ax_h, ax_l) = plt.subplots(2, 1, figsize=(13,7), sharex=True)
-    ax_h.set_ylabel("Best Fitness", fontsize=15)
-    ax_l.set_ylabel("Population Fitness", fontsize=15)
-    ax_l.set_xlabel("Episodes", fontsize=15)
+
+    # Calculate the average and variance of solve time. 
+    if not parser.folder_flag:
+        solve_score = 500.0
+        solve_times = []
+        solve_generations = []
+        did_solve = 0
+
+        for path_idx, path in enumerate(plotted_log_paths):
+            solves = []
+            for run_idx, runs in enumerate(bests[path_idx]):
+                for gen_idx, (best, timestep) in enumerate(zip(bests[path_idx][run_idx], timesteps[path_idx][run_idx])):
+                    if best >= solve_score:
+                        solves.append(timestep)
+                        solve_generations.append(gen_idx)
+                        did_solve += 1
+                        break
+            solve_times.append(solves)
+                
+        print(f"Num Runs: {len(bests[0])}")
+        print(f"Num Solves: {did_solve}")
+        print(f"Gens Till Solve {np.mean(solve_generations)}")
+        print(f"STD Gens Till Solve {np.std(solve_generations)}")
+        print(f"Average Solve Timesteps: {np.mean(solve_times)}" )
+        print(f"Standard Deviation of Solve Timesteps: {np.std(solve_times)}")
+
+        # Graph data
+        fig, (ax_h, ax_l) = plt.subplots(2, 1, figsize=(13,7), sharex=True)
+        ax_h.set_ylabel("Best Fitness", fontsize=15)
+        ax_l.set_ylabel("Population Fitness", fontsize=15)
+        ax_l.set_xlabel("Timesteps", fontsize=15)
+
 
     for path_idx, path in enumerate(plotted_log_paths):
-        log_name = get_log_name(path)
+        for run_idx, runs in enumerate(bests[path_idx]):
+            run_name = f"Run: run_idx {run_idx}"
 
-        ax_h.plot(episodes[path_idx], bests[path_idx], label=log_name)
-        ax_l.plot(episodes[path_idx], means[path_idx], label=log_name)
+            ax_h.plot(timesteps[path_idx][run_idx], bests[path_idx][run_idx], label=run_name)
+            ax_l.plot(timesteps[path_idx][run_idx], means[path_idx][run_idx], label=run_name)
 
     ax_l.legend(loc='upper center', bbox_to_anchor=(1.05, 1.5), shadow=True, fontsize=7)
     #ax_l.legend()
