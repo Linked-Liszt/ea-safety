@@ -1,7 +1,7 @@
 {
     "experiment": {
         "num_gens": 2000,
-        "num_runs": 30,
+        "num_runs": 20,
         "log_name": "evo_ac_cart_single",
         "log_path": "checkpoints/evo_ac",
         "env": "CartPole-v1",
@@ -12,17 +12,18 @@
     
     "evo_ac": {
         "pop_size": 1,
-        "value_coeff": 0.5,
-        "entropy_coeff": 0.0,
+        "value_coeff": 1.0,
+        "entropy_coeff": 0.01,
         "recomb_nums": [1],
-        "learning_rate": [1e-4, 1e-4],
+        "hold_elite":false,
+        "learning_rate": [1e-6, 1e-6],
         "mut_scale":  0.0,
-        "lr_decay": 1.0
+        "lr_decay": 0.99
 
     },
 
     "neural_net": {
-        "learning_rate":3e-2,
+        "learning_rate":3e-6,
         "shared": [
             {
                 "type": "Linear",
