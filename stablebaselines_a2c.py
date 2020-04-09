@@ -37,7 +37,7 @@ env = make_vec_env('CartPole-v1', n_envs=exp_config['num_envs'])
 
 for run in range(exp_config['num_runs']):
     model = A2C(MlpPolicy, env, verbose=1)
-    for epoch in range(exp_config['num_gens']):
+    for epoch in range(int(exp_config['timesteps'] / 1000)):
         model.learn(total_timesteps=1000)
     
         fitness = test_model(model)

@@ -1,6 +1,6 @@
 {
     "experiment": {
-        "num_gens": 200,
+        "timesteps": 100000,
         "num_runs": 30,
         "num_envs": 5,
         "env": "CartPole-v1",

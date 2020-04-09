@@ -24,7 +24,7 @@ class EvoACRunner(object):
         for run_idx in range(self.config_exp['num_runs']):
             self.reset_experiment()
             self.timesteps = 0
-            for self.gen_idx in range(self.config_exp['num_gens']):
+            for self.gen_idx in range(1000):
                 self.storage.reset_storage()
                 
 
@@ -57,6 +57,9 @@ class EvoACRunner(object):
                     self.update_single()
                 else:
                     self.update_evo_ac()
+
+                if self.timesteps > self.config_exp['timesteps']:
+                    break
 
             self.logger.end_run()
         self.logger.end_experiment()
