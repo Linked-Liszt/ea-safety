@@ -23,9 +23,10 @@ class EvoACRunner(object):
     def train(self):
         for run_idx in range(self.config_exp['num_runs']):
             self.reset_experiment()
-            for gen_idx in range(self.config_exp['num_gens']):
+            self.timesteps = 0
+            for self.gen_idx in range(self.config_exp['num_gens']):
                 self.storage.reset_storage()
-                #TODO entropies
+                
 
                 for pop_idx in range(self.config_evo['pop_size']):
                     obs = self.env.reset()
@@ -33,7 +34,13 @@ class EvoACRunner(object):
                     fitness = 0
 
                     while True:
-                        action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), pop_idx)
+                        runner_pop = pop_idx
+                        if 'single' in self.config_exp and self.config_exp['single']:
+                            runner_pop = 0
+
+                        action, log_p_a, entropy, value = self.model.get_action(self.storage.obs2tensor(obs), runner_pop)
+
+                        self.timesteps += 1
 
                         obs, reward, done, info = self.env.step(action.cpu().numpy())
                         fitness += reward
@@ -45,25 +52,42 @@ class EvoACRunner(object):
                             break
                     
                     self.storage.insert_fitness(pop_idx, fitness)
-                self.model.opt.zero_grad()
-                loss, policy_loss_log, value_loss_log = self.storage.get_loss()
-                loss.backward()
-                self.evo.set_grads(self.model.extract_grads())
-                self.model.opt.step()
-                self.evo.set_fitnesses(self.storage.fitnesses)
-
-                new_pop = self.evo.create_new_pop()
-
-                self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss_log, 
-                                            value_loss_log, gen_idx)
-                self.logger.print_data(gen_idx)
-
-                self.model.insert_params(new_pop)
+                
+                if 'single' in self.config_exp and self.config_exp['single']:
+                    self.update_single()
+                else:
+                    self.update_evo_ac()
 
             self.logger.end_run()
         self.logger.end_experiment()
 
                 
+    def update_single(self):
+        self.model.opt.zero_grad()
+        loss, policy_loss_log, value_loss_log = self.storage.get_loss()
+        loss.backward()
+        self.model.opt.step()
+        self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss_log, 
+                                            value_loss_log, self.gen_idx, self.timesteps)
+        self.logger.print_data(self.gen_idx)
+
+    def update_evo_ac(self):
+        self.model.opt.zero_grad()
+        loss, policy_loss_log, value_loss_log = self.storage.get_loss()
+        loss.backward()
+        self.evo.set_grads(self.model.extract_grads())
+        
+        self.model.opt.step()
+
+        self.evo.set_fitnesses(self.storage.fitnesses)
+
+        new_pop = self.evo.create_new_pop()
+
+        self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss_log, 
+                                    value_loss_log, self.gen_idx, self.timesteps)
+        self.logger.print_data(self.gen_idx)
+
+        self.model.insert_params(new_pop)
 
 
     def reset_experiment(self):
