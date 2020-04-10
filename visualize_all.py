@@ -21,6 +21,7 @@ def load_data_v0(log_dict):
 
 
     for run_idx, run_log in enumerate(nn_dict['experiment_log']):
+        # I'm sorry, this is very ugly
         gens_run = []
         best_run = []
         means_run = []
@@ -35,15 +36,17 @@ def load_data_v0(log_dict):
             pop_stds_run.append(data_dict['fit_std'])
             timesteps_run.append(data_dict['timesteps'])
         
-        gens.append(gens_run)
-        best.append(best_run)
-        means.append(means_run)
-        medians.append(medians_run)
-        pop_stds.append(pop_stds_run)
-        timesteps.append(timesteps_run)
+        interp_points = np.arange(0, nn_dict['config']['experiment']['timesteps'] + 1, step=1000)
+    
+        best_interp = np.interp(interp_points, timesteps_run, best_run, left=0.0, right=best_run[-1])
 
+        best.append(best_interp)
+
+    std = np.std(best, axis=0)
+    best = np.mean(best, axis=0)
+    
     print("Log Loaded.")
-    return timesteps, best, means, medians, pop_stds, stds
+    return interp_points, best, std
 
 
 def parse_arguments():
@@ -89,14 +92,11 @@ if __name__ == '__main__':
     plotted_log_paths = []
     timesteps = []
     bests = []
-    means = []
-    medians = []
-    pop_stds = []
     stds = []
     for path in log_paths:
         nn_dict = pickle.load(open(path, 'rb'))
     
-        timestep, best, mean, median, pop_std, std = load_data_v0(nn_dict)
+        timestep, best, std = load_data_v0(nn_dict)
 
         if parser.ignore_failed and best[-1] < 50:
             continue
@@ -104,54 +104,27 @@ if __name__ == '__main__':
         plotted_log_paths.append(path)
         timesteps.append(timestep)
         bests.append(best)
-        means.append(mean)
-        medians.append(median)
-        pop_stds.append(pop_std)
-        stds.append(std)
+        stds.append(std)    
 
 
 
-    # Calculate the average and variance of solve time. 
-    if not parser.folder_flag:
-        solve_score = 500.0
-        solve_times = []
-        solve_generations = []
-        did_solve = 0
 
-        for path_idx, path in enumerate(plotted_log_paths):
-            solves = []
-            for run_idx, runs in enumerate(bests[path_idx]):
-                for gen_idx, (best, timestep) in enumerate(zip(bests[path_idx][run_idx], timesteps[path_idx][run_idx])):
-                    if best >= solve_score:
-                        solves.append(timestep)
-                        solve_generations.append(gen_idx)
-                        did_solve += 1
-                        break
-            solve_times.append(solves)
-                
-        print(f"Num Runs: {len(bests[0])}")
-        print(f"Num Solves: {did_solve}")
-        print(f"Gens Till Solve {np.mean(solve_generations)}")
-        print(f"STD Gens Till Solve {np.std(solve_generations)}")
-        print(f"Average Solve Timesteps: {np.mean(solve_times)}" )
-        print(f"Standard Deviation of Solve Timesteps: {np.std(solve_times)}")
-
-        # Graph data
-        fig, (ax_h, ax_l) = plt.subplots(2, 1, figsize=(13,7), sharex=True)
-        ax_h.set_ylabel("Best Fitness", fontsize=15)
-        ax_l.set_ylabel("Population Fitness", fontsize=15)
-        ax_l.set_xlabel("Timesteps", fontsize=15)
+    # Graph data
+    fig, ax_h = plt.subplots(1, 1, figsize=(13,7))
+    ax_h.set_ylabel("Fitness", fontsize=15)
+    ax_h.set_xlabel("Timesteps", fontsize=15)
 
 
     for path_idx, path in enumerate(plotted_log_paths):
-        for run_idx, runs in enumerate(bests[path_idx]):
-            run_name = f"Run: run_idx {run_idx}"
+        print(path)
+        ax_h.plot(timesteps[path_idx], bests[path_idx], label=get_log_name(path))
+        error_high = stds[path_idx] + bests[path_idx]
+        error_low = (-stds[path_idx]) + bests[path_idx]
+        ax_h.fill_between(timesteps[path_idx], error_low, error_high, alpha=0.2)
+        
 
-            ax_h.plot(timesteps[path_idx][run_idx], bests[path_idx][run_idx], label=run_name)
-            ax_l.plot(timesteps[path_idx][run_idx], means[path_idx][run_idx], label=run_name)
 
-    ax_l.legend(loc='upper center', bbox_to_anchor=(1.05, 1.5), shadow=True, fontsize=7)
-    #ax_l.legend()
-    fig.suptitle("Fitness Graph", fontsize=25)
+    ax_h.legend(loc='lower right', shadow=True, fontsize=14)
+    fig.suptitle("Cartpole Ablation", fontsize=25)
 
     plt.show()
