@@ -84,7 +84,8 @@ class EvoACLogger(object):
             display_str = f'\n\nRun {self.run_counter}  Gen {gen_idx}\n' \
                 + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}\n" \
                 + f"Policy Loss: {data_dict['policy_loss']:.2e}  Value Loss: {data_dict['value_loss']:.2e}\n" \
-                + f"Full: {data_dict['fit']}"
+                + f"Full: {data_dict['fit']}\n"\
+                + f"Experiment: {self.config_exp['log_name']}"
             print(display_str)
             
     def _send_discord_notification(self):
