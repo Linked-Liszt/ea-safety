@@ -18,7 +18,8 @@
         "recomb_nums": [5,3,1],
         "learning_rate": [1e-5, 1e-5],
         "mut_scale":  0.1,
-        "lr_decay": 0.98
+        "lr_decay": 0.98,
+        "gamma": 0.99
 
     },
 

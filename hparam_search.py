@@ -13,126 +13,207 @@ if __name__ == '__main__':
     with open(config_path, 'r') as config_file:
         config_dict = json.load(config_file)
 
+    
+
 
     for hparam_run_idx in range(300):
-        lr_1 = random.uniform(1e-3, 1e-8)
-
-        config_dict['evo_ac']['learning_rate'] = [lr_1, lr_1]
-        config_dict['neural_net']['learning_rate'] = random.uniform(1e-3, 1e-8)
-
-       
         config_dict['experiment']['num_runs'] = 10
         config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_ll"
-        config_dict['experiment']['log_name'] = f"evo_ac_hparam_ll_small_big_lr{hparam_run_idx}"
+        config_dict['experiment']['log_name'] = f"evo_ac_ll_hparam_search_2_{hparam_run_idx}"
 
-        """
-        config_dict['evo_ac']['learning_rate'] = random.uniform(1e-5, 1e-7)
-        config_dict['neural_net']['learning_rate'] = random.uniform(1e-4, 1e-6)
-        config_dict['evo_ac']['mut_scale'] = random.uniform(0.1, 1.0)
-        config_dict['evo_ac']['lr_decay'] = random.uniform(0.95, 1.0)
+
+        activation_function = random.choice(['ReLU', 'Tanh'])
         
+        config_dict['experiment']['gamma'] = random.choice([0.98, 0.99, 0.995, 0.999])
+        config_dict['evo_ac']['entropy_coeff'] = random.choice([0.0, 0.01, 0.02, 0.05, 0.1])
+        config_dict['evo_ac']['value_coeff'] = random.choice([0.1, 0.2, 0.5, 1.0])
+        config_dict['evo_ac']['lr_decay'] = random.choice([0.95, 0.97, 0.99])
 
-        shared_size = random.randint(0, 1)
-        hidden_size = random.randint(1, 8) * 64
+        lr = random.choice(np.logspace(-6, -2,num=50))
+        config_dict['evo_ac']['learning_rate'] = [lr,lr]
+
+
+
+        arch = random.randint(0, 3)
+        size_set = random.choice([[32, 64], [64, 128]])
         shared = policy = value = None
-        if shared_size == 0:
+        if arch == 0:
             shared = [
                 {
                     "type": "Linear",
-                    "params": [8, hidden_size], 
+                    "params": [8, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
-                    "type": "ReLU",
+                    "type": activation_function,
                     "params": [], 
                     "kwargs": {}
                 }
                 ]
-        elif shared_size == 1:
+            policy = [
+                {
+                    "type": "Linear",
+                    "params": [size_set[0], 4], 
+                    "kwargs": {"bias":True}
+                }
+                ]
+            value = [
+                {
+                    "type": "Linear",
+                    "params": [size_set[0], 1], 
+                    "kwargs": {"bias":True}
+                }
+                ]
+
+        elif arch == 1:
             shared = [
                 {
                     "type": "Linear",
-                    "params": [8, hidden_size], 
+                    "params": [8, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
-                    "type": "ReLU",
+                    "type": activation_function,
                     "params": [], 
                     "kwargs": {}
                 },
                 {
                     "type": "Linear",
-                    "params": [hidden_size, hidden_size], 
+                    "params": [size_set[0], 64], 
                     "kwargs": {"bias":True}
                 }, 
                 {
-                    "type": "ReLU",
+                    "type": activation_function,
                     "params": [], 
                     "kwargs": {}
                 }
                 ]
-
-        value_size = random.randint(0, 1)
-        if value_size == 0:
-            value = [
-                {
-                    "type": "Linear",
-                    "params": [hidden_size, 1], 
-                    "kwargs": {"bias":True}
-                }
-                ]
-        elif value_size == 1:
-            value = [
-                {
-                    "type": "Linear",
-                    "params": [hidden_size, hidden_size], 
-                    "kwargs": {"bias":True}
-                }, 
-                {
-                    "type": "ReLU",
-                    "params": [], 
-                    "kwargs": {}
-                },
-                {
-                    "type": "Linear",
-                    "params": [hidden_size, 1], 
-                    "kwargs": {"bias":True}
-                }
-                ]
-        
-
-        policy_size = random.randint(0, 1)
-        if policy_size == 0:
             policy = [
                 {
                     "type": "Linear",
-                    "params": [hidden_size, 4], 
+                    "params": [64, 4], 
                     "kwargs": {"bias":True}
                 }
                 ]
-        elif policy_size == 1:
-            policy = [
+            value = [
                 {
                     "type": "Linear",
-                    "params": [hidden_size, hidden_size], 
+                    "params": [64, 1], 
+                    "kwargs": {"bias":True}
+                }
+                ]
+
+        elif arch == 2:
+            shared = [
+                {
+                    "type": "Linear",
+                    "params": [8, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
-                    "type": "ReLU",
+                    "type": activation_function,
+                    "params": [], 
+                    "kwargs": {}
+                }
+                ]
+            policy = [
+                {
+                    "type": "Linear",
+                    "params": [size_set[0], 64], 
+                    "kwargs": {"bias":True}
+                },
+                {
+                    "type": activation_function,
                     "params": [], 
                     "kwargs": {}
                 },
                 {
                     "type": "Linear",
-                    "params": [hidden_size, 4], 
+                    "params": [64, 4], 
+                    "kwargs": {"bias":True}
+                }
+                ]
+            value = [
+                {
+                    "type": "Linear",
+                    "params": [size_set[0], 64], 
+                    "kwargs": {"bias":True}
+                }, 
+                {
+                    "type": activation_function,
+                    "params": [], 
+                    "kwargs": {}
+                },
+                {
+                    "type": "Linear",
+                    "params": [64, 1], 
                     "kwargs": {"bias":True}
                 }
                 ]
 
+        elif arch == 3:
+            shared = [
+                {
+                    "type": "Linear",
+                    "params": [8, size_set[0]], 
+                    "kwargs": {"bias":True}
+                }, 
+                {
+                    "type": activation_function,
+                    "params": [], 
+                    "kwargs": {}
+                },
+                {
+                    "type": "Linear",
+                    "params": [size_set[0], size_set[1]], 
+                    "kwargs": {"bias":True}
+                }, 
+                {
+                    "type": activation_function,
+                    "params": [], 
+                    "kwargs": {}
+                },
+
+                ]
+            policy = [
+                {
+                    "type": "Linear",
+                    "params": [size_set[1], size_set[1]], 
+                    "kwargs": {"bias":True}
+                },
+                {
+                    "type": activation_function,
+                    "params": [], 
+                    "kwargs": {}
+                },
+                {
+                    "type": "Linear",
+                    "params": [size_set[1], 4], 
+                    "kwargs": {"bias":True}
+                }
+                ]
+            value = [
+                {
+                    "type": "Linear",
+                    "params": [size_set[1], size_set[1]], 
+                    "kwargs": {"bias":True}
+                }, 
+                {
+                    "type": activation_function,
+                    "params": [], 
+                    "kwargs": {}
+                },
+                {
+                    "type": "Linear",
+                    "params": [size_set[1], 1], 
+                    "kwargs": {"bias":True}
+                }
+            ]
 
         config_dict['neural_net']['shared'] = shared
         config_dict['neural_net']['policy'] = policy
         config_dict['neural_net']['value'] = value
-        """
+        
+        
         runner = EvoACRunner(config_dict)
         runner.train()

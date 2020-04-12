@@ -24,7 +24,11 @@ class EvoACStorage(object):
 
         self.value_coeff = self.evo_ac_config['value_coeff']
         self.entropy_coeff = self.evo_ac_config['entropy_coeff']
-        self.reward_discount = 0.99
+
+        if 'gamma' not in config['experiment']:
+            self.reward_discount = 0.99
+        else:
+            self.reward_discount = config['experiment']['gamma']
 
         # initialize the buffers with zeros
         self.reset_storage()
