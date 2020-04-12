@@ -1,12 +1,12 @@
 {
     "experiment": {
         "timesteps": 500000,
-        "num_runs": 30,
+        "num_runs": 10,
         "env": "LunarLander-v2",
-        "log_name": "evo_ac_cart_no_lr_param",
+        "log_name": "evo_ac_ll_test_large_lr",
         "log_run": false,
         "print_interval": 1,
-        "log_path": "checkpoints/evo_ac"
+        "log_path": "checkpoints/ll"
     },
 
     
@@ -16,14 +16,14 @@
         "entropy_coeff": 0.05,
         "hold_elite":true,
         "recomb_nums": [5,3,1],
-        "learning_rate": [5e-5, 5e-5],
+        "learning_rate": [1e-5, 1e-5],
         "mut_scale":  0.1,
         "lr_decay": 0.98
 
     },
 
     "neural_net": {
-        "learning_rate":3e-2,
+        "learning_rate":1e-3,
         "shared": [
             {
                 "type": "Linear",

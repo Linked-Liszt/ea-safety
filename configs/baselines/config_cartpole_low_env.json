@@ -3,9 +3,9 @@
         "timesteps": 100000,
         "step_interval": 5000,
         "num_runs": 30,
-        "num_envs": 5,
+        "num_envs": 2,
         "env": "CartPole-v1",
-        "log_name": "cartpole_baseline_large_step",
+        "log_name": "cartpole_baseline_low",
         "log_run": false,
         "print_interval": 1,
         "log_path": "checkpoints/baselines"

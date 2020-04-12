@@ -15,15 +15,15 @@ if __name__ == '__main__':
 
 
     for hparam_run_idx in range(300):
-        lr_1 = random.uniform(1e-3, 1e-7)
+        lr_1 = random.uniform(1e-3, 1e-8)
 
-        config_dict['learning_rate'] = [lr_1, lr_1]
-        config_dict['neural_net']['learning_rate'] = random.uniform(1e-4, 1e-6)
+        config_dict['evo_ac']['learning_rate'] = [lr_1, lr_1]
+        config_dict['neural_net']['learning_rate'] = random.uniform(1e-3, 1e-8)
 
        
-        config_dict['experiment']['num_runs'] = 5
-        config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_cart"
-        config_dict['experiment']['log_name'] = f"evo_ac_hparam_cart{hparam_run_idx}"
+        config_dict['experiment']['num_runs'] = 10
+        config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_ll"
+        config_dict['experiment']['log_name'] = f"evo_ac_hparam_ll_small_big_lr{hparam_run_idx}"
 
         """
         config_dict['evo_ac']['learning_rate'] = random.uniform(1e-5, 1e-7)
