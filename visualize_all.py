@@ -30,7 +30,11 @@ def load_data_v0(log_dict):
         timesteps_run = []
         for gen_idx, data_dict in enumerate(run_log):
             gens_run.append(gen_idx)
-            best_run.append(data_dict['fit_best'])
+            if 'test_fit' in data_dict:
+                fit_val = 'test_fit'
+            else:
+                fit_val = 'fit_best'
+            best_run.append(data_dict[fit_val])
             means_run.append(data_dict['fit_mean'])
             medians_run.append(data_dict['fit_med'])
             pop_stds_run.append(data_dict['fit_std'])
