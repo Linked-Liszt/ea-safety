@@ -25,9 +25,10 @@ class EvoACRunner(object):
         for run_idx in range(self.config_exp['num_runs']):
             self.reset_experiment()
             self.timesteps = 0
+            self.last_log = -9999999
+
             for self.gen_idx in range(10000):
                 self.storage.reset_storage()
-                self.last_log = -9999999
 
                 for pop_idx in range(self.config_evo['pop_size']):
                     obs = self.env.reset()
@@ -57,6 +58,10 @@ class EvoACRunner(object):
                     self.log_results()
                     self.last_log = self.timesteps
 
+                #TODO CLEAN THIS UP
+                self.model.insert_params(self.new_pop)
+
+
                 if self.timesteps > self.config_exp['timesteps']:
                     break
 
@@ -85,7 +90,6 @@ class EvoACRunner(object):
                                     self.value_loss_log, self.gen_idx, self.timesteps)
         self.logger.print_data(self.gen_idx)
 
-        self.model.insert_params(self.new_pop)
 
 
     def reset_experiment(self):
