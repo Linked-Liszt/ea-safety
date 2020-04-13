@@ -33,6 +33,7 @@ def load_data_v0(log_dict):
                 fit_val = 'test_fit'
             else:
                 fit_val = 'fit_best'
+                print("WARNING: Test fit not found!")
             best_run.append(data_dict[fit_val])
             means_run.append(data_dict['fit_mean'])
             medians_run.append(data_dict['fit_med'])

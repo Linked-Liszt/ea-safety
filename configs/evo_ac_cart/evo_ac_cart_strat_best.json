@@ -17,8 +17,8 @@
         "entropy_coeff": 0.05,
         "hold_elite":true,
         "recomb_nums": [5,3,1],
-        "learning_rate": [3e-5, 9e-5],
-        "mut_scale":  0.1,
+        "learning_rate": [5e-5, 5e-5],
+        "mut_scale":  0.0,
         "lr_decay": 0.98
 
     },
