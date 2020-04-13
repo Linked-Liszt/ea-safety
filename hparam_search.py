@@ -19,9 +19,11 @@ if __name__ == '__main__':
 
 
     for hparam_run_idx in range(300):
-        config_dict['experiment']['num_runs'] = 5
-        config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_ll"
-        config_dict['experiment']['log_name'] = f"evo_ac_ll_hparam_search_11_{hparam_run_idx}"
+        config_dict['experiment']['num_runs'] = 10
+        config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_cart"
+        config_dict['experiment']['log_name'] = f"evo_ac_cart_hparam_search_0_{hparam_run_idx}"
+        input_size = 4
+        output_size = 2
 
 
         activation_function = random.choice(['ReLU', 'Tanh'])
@@ -44,7 +46,7 @@ if __name__ == '__main__':
             shared = [
                 {
                     "type": "Linear",
-                    "params": [8, size_set[0]], 
+                    "params": [input_size, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
@@ -56,7 +58,7 @@ if __name__ == '__main__':
             policy = [
                 {
                     "type": "Linear",
-                    "params": [size_set[0], 4], 
+                    "params": [size_set[0], output_size], 
                     "kwargs": {"bias":True}
                 }
                 ]
@@ -72,7 +74,7 @@ if __name__ == '__main__':
             shared = [
                 {
                     "type": "Linear",
-                    "params": [8, size_set[0]], 
+                    "params": [input_size, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
@@ -82,7 +84,7 @@ if __name__ == '__main__':
                 },
                 {
                     "type": "Linear",
-                    "params": [size_set[0], 64], 
+                    "params": [size_set[0], size_set[1]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
@@ -94,14 +96,14 @@ if __name__ == '__main__':
             policy = [
                 {
                     "type": "Linear",
-                    "params": [64, 4], 
+                    "params": [size_set[1], output_size], 
                     "kwargs": {"bias":True}
                 }
                 ]
             value = [
                 {
                     "type": "Linear",
-                    "params": [64, 1], 
+                    "params": [size_set[1], 1], 
                     "kwargs": {"bias":True}
                 }
                 ]
@@ -110,7 +112,7 @@ if __name__ == '__main__':
             shared = [
                 {
                     "type": "Linear",
-                    "params": [8, size_set[0]], 
+                    "params": [input_size, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
@@ -122,7 +124,7 @@ if __name__ == '__main__':
             policy = [
                 {
                     "type": "Linear",
-                    "params": [size_set[0], 64], 
+                    "params": [size_set[0], size_set[1]], 
                     "kwargs": {"bias":True}
                 },
                 {
@@ -132,14 +134,14 @@ if __name__ == '__main__':
                 },
                 {
                     "type": "Linear",
-                    "params": [64, 4], 
+                    "params": [size_set[1], output_size], 
                     "kwargs": {"bias":True}
                 }
                 ]
             value = [
                 {
                     "type": "Linear",
-                    "params": [size_set[0], 64], 
+                    "params": [size_set[0], size_set[1]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
@@ -149,7 +151,7 @@ if __name__ == '__main__':
                 },
                 {
                     "type": "Linear",
-                    "params": [64, 1], 
+                    "params": [size_set[1], 1], 
                     "kwargs": {"bias":True}
                 }
                 ]
@@ -158,7 +160,7 @@ if __name__ == '__main__':
             shared = [
                 {
                     "type": "Linear",
-                    "params": [8, size_set[0]], 
+                    "params": [input_size, size_set[0]], 
                     "kwargs": {"bias":True}
                 }, 
                 {
@@ -191,7 +193,7 @@ if __name__ == '__main__':
                 },
                 {
                     "type": "Linear",
-                    "params": [size_set[1], 4], 
+                    "params": [size_set[1], output_size], 
                     "kwargs": {"bias":True}
                 }
                 ]

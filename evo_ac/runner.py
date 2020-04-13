@@ -17,8 +17,6 @@ class EvoACRunner(object):
         if self.config_exp['env'] == "CartPole-v1":
             self.stop_fit = 500.0
 
-        self.max_stop_count = 5
-       
         self.env = gym.make(self.config_exp['env'])
         self.test_env = gym.make(self.config_exp['env'])
         self.logger = EvoACLogger(config)
@@ -67,11 +65,7 @@ class EvoACRunner(object):
                     self.last_log = self.timesteps
 
                     if test_fit >= self.stop_fit:
-                        self.stop_counter += 1
-                        if self.stop_counter > self.max_stop_count:
-                            break
-                    else:
-                        self.stop_counter = 0
+                        break
 
                 self.model.insert_params(self.new_pop)
 
@@ -102,7 +96,7 @@ class EvoACRunner(object):
         value_coeff = self.config_evo['value_coeff']
         entropy_coff = self.config_evo['entropy_coeff']
 
-        print("NEW")
+        print("NEW RUN")
 
         self.storage = EvoACStorage(num_pop, self.config)
         self.model = EvoACModel(self.config)
