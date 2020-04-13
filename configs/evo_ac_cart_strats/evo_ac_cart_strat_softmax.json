@@ -6,7 +6,7 @@
         "log_name": "evo_ac_cart_strat_softmax",
         "log_run": false,
         "print_interval": 1,
-        "log_path": "checkpoints/evo_ac",
+        "log_path": "checkpoints/evo_ac_cart_strats",
         "test_strat": "softmax"
     },
 
