@@ -5,7 +5,7 @@ import torch
 from evo_ac.storage import EvoACStorage
 from evo_ac.grad_evo import EvoACEvoAlg
 from evo_ac.logger import EvoACLogger
-
+import scipy.special as sps
 
 class EvoACRunner(object):
     def __init__(self, config):
@@ -126,8 +126,16 @@ class EvoACRunner(object):
         if self.config_exp['test_strat'] == 'best':
             best_pop = np.argmax(fitnesses)
             action, _, _, _ = self.model.get_action(obs, best_pop)
-
-            #[self.model.get_action(obs, pop_idx) for pop_idx in range(len(self.config_evo['pop_size']))]
-        
-
-        return action.cpu().numpy()
+            action = action.cpu().numpy()
+        elif self.config_exp['test_strat'] == 'softmax':
+            probs = sps.softmax(fitnesses)
+            pop_idx = np.random.choice(self.config_evo['pop_size'], 1, p=probs)
+            action, _, _, _ = self.model.get_action(obs, pop_idx[0])
+            action = action.cpu().numpy()
+        elif self.config_exp['test_strat'] == 'weightedvote':
+            actions = [self.model.get_action(obs, pop_idx)[0].item() for pop_idx in range(self.config_evo['pop_size'])]
+            action_votes = [0] * self.test_env.action_space.n
+            for mod_action, weight in zip(actions, fitnesses):
+                action_votes[mod_action] += weight
+            action = np.argmax(action_votes)
+        return action
