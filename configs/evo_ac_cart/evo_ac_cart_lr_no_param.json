@@ -6,6 +6,7 @@
         "log_name": "evo_ac_cart_lr_no_param",
         "log_run": false,
         "print_interval": 1,
+        "log_interval": 2000,
         "log_path": "checkpoints/evo_ac",
         "test_strat": "weightedvote"
     },

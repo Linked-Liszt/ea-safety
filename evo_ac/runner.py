@@ -27,7 +27,7 @@ class EvoACRunner(object):
             self.timesteps = 0
             for self.gen_idx in range(10000):
                 self.storage.reset_storage()
-                
+                self.last_log = -9999999
 
                 for pop_idx in range(self.config_evo['pop_size']):
                     obs = self.env.reset()
@@ -53,25 +53,20 @@ class EvoACRunner(object):
                 
                 self.update_evo_ac()
 
+                if self.timesteps - self.last_log >= self.config_exp['log_interval'] or self.timesteps > self.config_exp['timesteps']:
+                    self.log_results()
+                    self.last_log = self.timesteps
+
                 if self.timesteps > self.config_exp['timesteps']:
                     break
 
             self.logger.end_run()
         self.logger.end_experiment()
 
-                
-    def update_single(self):
-        self.model.opt.zero_grad()
-        loss, policy_loss_log, value_loss_log = self.storage.get_loss()
-        loss.backward()
-        self.model.opt.step()
-        self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss_log, 
-                                            value_loss_log, self.gen_idx, self.timesteps)
-        self.logger.print_data(self.gen_idx)
 
     def update_evo_ac(self):
         self.model.opt.zero_grad()
-        loss, policy_loss_log, value_loss_log = self.storage.get_loss()
+        loss, self.policy_loss_log, self.value_loss_log = self.storage.get_loss()
         loss.backward()
         self.evo.set_grads(self.model.extract_grads())
         
@@ -79,15 +74,18 @@ class EvoACRunner(object):
 
         self.evo.set_fitnesses(self.storage.fitnesses)
 
-        new_pop = self.evo.create_new_pop()
+        self.new_pop = self.evo.create_new_pop()
 
+
+    def log_results(self):
+        #TODO Refactor vars
         test_fit = self.test_algorithm()
 
-        self.logger.save_fitnesses(self.model, test_fit, self.storage.fitnesses, policy_loss_log, 
-                                    value_loss_log, self.gen_idx, self.timesteps)
+        self.logger.save_fitnesses(self.model, test_fit, self.storage.fitnesses, self.policy_loss_log, 
+                                    self.value_loss_log, self.gen_idx, self.timesteps)
         self.logger.print_data(self.gen_idx)
 
-        self.model.insert_params(new_pop)
+        self.model.insert_params(self.new_pop)
 
 
     def reset_experiment(self):
