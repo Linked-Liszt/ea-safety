@@ -17,6 +17,7 @@ class EvoACRunner(object):
         
        
         self.env = gym.make(self.config_exp['env'])
+        self.test_env = gym.make(self.config_exp['env'])
         self.logger = EvoACLogger(config)
 
         
@@ -24,7 +25,7 @@ class EvoACRunner(object):
         for run_idx in range(self.config_exp['num_runs']):
             self.reset_experiment()
             self.timesteps = 0
-            for self.gen_idx in range(1000):
+            for self.gen_idx in range(10000):
                 self.storage.reset_storage()
                 
 
@@ -80,7 +81,9 @@ class EvoACRunner(object):
 
         new_pop = self.evo.create_new_pop()
 
-        self.logger.save_fitnesses(self.model, self.storage.fitnesses, policy_loss_log, 
+        test_fit = self.test_algorithm()
+
+        self.logger.save_fitnesses(self.model, test_fit, self.storage.fitnesses, policy_loss_log, 
                                     value_loss_log, self.gen_idx, self.timesteps)
         self.logger.print_data(self.gen_idx)
 
@@ -100,3 +103,31 @@ class EvoACRunner(object):
         self.model = EvoACModel(self.config)
         self.evo = EvoACEvoAlg(self.config)
         self.evo.set_params(self.model.extract_params())
+
+    def test_algorithm(self):
+        with torch.no_grad():
+            fitnesses = []
+
+            for _ in range(100):
+                fitness = 0
+                obs = self.test_env.reset()
+                while True:
+                    action = self.get_test_action(obs)
+                    obs, rewards, done, info = self.test_env.step(action)
+                    fitness += rewards
+                    if done:
+                        break
+                fitnesses.append(fitness)
+            return np.mean(fitnesses)
+
+    def get_test_action(self, obs):
+        obs = self.storage.obs2tensor(obs)
+        fitnesses = self.storage.fitnesses
+        if self.config_exp['test_strat'] == 'best':
+            best_pop = np.argmax(fitnesses)
+            action, _, _, _ = self.model.get_action(obs, best_pop)
+
+            #[self.model.get_action(obs, pop_idx) for pop_idx in range(len(self.config_evo['pop_size']))]
+        
+
+        return action.cpu().numpy()

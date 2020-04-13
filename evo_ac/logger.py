@@ -30,10 +30,11 @@ class EvoACLogger(object):
         self.run_end_times.append(self.start_time)
 
 
-    def save_fitnesses(self, model, fitnesses, policy_loss, value_loss, gen, timesteps):
+    def save_fitnesses(self, model, test_fit, fitnesses, policy_loss, value_loss, gen, timesteps):
         data_dict = {}
         data_dict['gen'] = gen
         data_dict['timesteps'] = timesteps
+        data_dict['test_fit'] = test_fit
         data_dict['fit'] = copy.deepcopy(fitnesses)
         data_dict['fit_best'] = np.max(fitnesses)
         data_dict['fit_mean'] = np.mean(fitnesses)
