@@ -83,7 +83,7 @@ class EvoACLogger(object):
         if gen_idx % self.print_interval == 0:
             data_dict = self.run_log[-1]
             display_str = f'\n\nRun {self.run_counter}  Gen {gen_idx}\n' \
-                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}\n" \
+                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}  Test: {data_dict['test_fit']}\n" \
                 + f"Policy Loss: {data_dict['policy_loss']:.2e}  Value Loss: {data_dict['value_loss']:.2e}\n" \
                 + f"Full: {data_dict['fit']}\n"\
                 + f"Experiment: {self.config_exp['log_name']}"
