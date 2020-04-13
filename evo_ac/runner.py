@@ -13,8 +13,11 @@ class EvoACRunner(object):
         self.config_evo = config['evo_ac']
         self.config_net = config['neural_net']
         self.config_exp = config['experiment']
-        
-        
+
+        if self.config_exp['env'] == "CartPole-v1":
+            self.stop_fit = 500.0
+
+        self.max_stop_count = 5
        
         self.env = gym.make(self.config_exp['env'])
         self.test_env = gym.make(self.config_exp['env'])
@@ -25,6 +28,7 @@ class EvoACRunner(object):
         for run_idx in range(self.config_exp['num_runs']):
             self.reset_experiment()
             self.timesteps = 0
+            self.stop_counter = 0
             self.last_log = -9999999
 
             for self.gen_idx in range(10000):
@@ -55,10 +59,20 @@ class EvoACRunner(object):
                 self.update_evo_ac()
 
                 if self.timesteps - self.last_log >= self.config_exp['log_interval'] or self.timesteps > self.config_exp['timesteps']:
-                    self.log_results()
+                    test_fit = self.test_algorithm()
+
+                    self.logger.save_fitnesses(self.model, test_fit, self.storage.fitnesses, self.policy_loss_log, 
+                                                self.value_loss_log, self.gen_idx, self.timesteps)
+                    self.logger.print_data(self.gen_idx)
                     self.last_log = self.timesteps
 
-                #TODO CLEAN THIS UP
+                    if test_fit >= self.stop_fit:
+                        self.stop_counter += 1
+                        if self.stop_counter > self.max_stop_count:
+                            break
+                    else:
+                        self.stop_counter = 0
+
                 self.model.insert_params(self.new_pop)
 
 
@@ -80,17 +94,6 @@ class EvoACRunner(object):
         self.evo.set_fitnesses(self.storage.fitnesses)
 
         self.new_pop = self.evo.create_new_pop()
-
-
-    def log_results(self):
-        #TODO Refactor vars
-        test_fit = self.test_algorithm()
-
-        self.logger.save_fitnesses(self.model, test_fit, self.storage.fitnesses, self.policy_loss_log, 
-                                    self.value_loss_log, self.gen_idx, self.timesteps)
-        self.logger.print_data(self.gen_idx)
-
-
 
     def reset_experiment(self):
         obs_size = np.prod(np.shape(self.env.observation_space))
