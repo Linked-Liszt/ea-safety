@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import random
 
 
+# Search params adaped from https://arxiv.org/pdf/1912.02877.pdf
+
 if __name__ == '__main__':
     
     config_path = sys.argv[1]
@@ -17,9 +19,9 @@ if __name__ == '__main__':
 
 
     for hparam_run_idx in range(300):
-        config_dict['experiment']['num_runs'] = 10
+        config_dict['experiment']['num_runs'] = 5
         config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_ll"
-        config_dict['experiment']['log_name'] = f"evo_ac_ll_hparam_search_2_{hparam_run_idx}"
+        config_dict['experiment']['log_name'] = f"evo_ac_ll_hparam_search_11_{hparam_run_idx}"
 
 
         activation_function = random.choice(['ReLU', 'Tanh'])
@@ -31,7 +33,8 @@ if __name__ == '__main__':
 
         lr = random.choice(np.logspace(-6, -2,num=50))
         config_dict['evo_ac']['learning_rate'] = [lr,lr]
-
+        lr_2 = random.choice(np.logspace(-6, -2,num=50))
+        config_dict['neural_net']['learning_rate'] = lr_2
 
 
         arch = random.randint(0, 3)
