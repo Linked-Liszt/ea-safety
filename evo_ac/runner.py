@@ -15,7 +15,7 @@ class EvoACRunner(object):
         self.config_exp = config['experiment']
 
         if self.config_exp['env'] == "CartPole-v1":
-            self.stop_fit = 500.0
+            self.stop_fit = 495.0
 
         self.env = gym.make(self.config_exp['env'])
         self.test_env = gym.make(self.config_exp['env'])
