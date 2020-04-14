@@ -24,7 +24,8 @@ for run_idx in range(num_runs):
         test_fit = random.uniform(0, 500) # "Test Results"
         
         logger.save_sample(test_fit, timesteps, gen) # These params are required, other optional ones if needed. 
-        
+        logger.print_data() # Optional
+
         num_gens += 1
         timesteps += 1000
         gen += 10

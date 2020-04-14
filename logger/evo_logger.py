@@ -4,6 +4,7 @@ import copy
 import os
 from datetime import datetime
 import json
+import numpy as np
 
 class EvoLogger(object):
     def __init__(self, log_name, output_folder=None, experiment_config=None, log_run=False, use_pickle=True):
@@ -176,11 +177,12 @@ class EvoLogger(object):
         Prints log statistics to the console.
         """
         data_dict = self.run_log[-1]
-        display_str = f"\nRun {self.run_counter}  Gen {data_dict['gen']}  Timesteps {data_dict['timesteps']} \n" \
+        display_str = f"\nRun {self.run_counter}  |  Gen {data_dict['gen']}  |  Timesteps {data_dict['timesteps']} \n" \
             + f"Test Fitness: {data_dict['test_fit']}\n"
         
         if data_dict['pop_fitnesses'] is not None:
-            display_str += f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}\n" 
+            display_str += f"Population Best: {max(data_dict['pop_fitnesses'])}  |  Population Mean: {np.mean(data_dict['pop_fitnesses'])}" 
+            display_str += f"  |  Population Var: {np.std(data_dict['pop_fitnesses']):.2f}\n" 
         
         if data_dict['loss'] is not None:
             display_str += f"Loss: {data_dict['loss']:.2e}\n"
