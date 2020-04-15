@@ -66,11 +66,21 @@ class EvoACEvoAlg(object):
         learning_rate = random.uniform(self.learning_rate[0], self.learning_rate[1])
         adjusted_grad = learning_rate * grad
 
-        locs = param - adjusted_grad
-        scales = torch.abs(adjusted_grad) * self.mut_scale
+        if self.evo_config['mutation_type'] == "gauss":
+            locs = param - adjusted_grad
+            scales = torch.abs(adjusted_grad) * self.mut_scale
 
-        norm_dist = torch.distributions.normal.Normal(locs, scales)
-        return norm_dist.sample()
+            norm_dist = torch.distributions.normal.Normal(locs, scales)
+            return norm_dist.sample()
+
+        elif self.evo_config['mutation_type'] == "uniform":
+            locs = param - adjusted_grad
+            mutation_amount = torch.abs(adjusted_grad) * self.mut_scale
+            dist = torch.distributions.uniform.Uniform(-mutation_amount, mutation_amount)
+            print(dist.sample())
+            return locs + dist.sample()
+
+    
 
     def decary_lr(self):
         self.learning_rate = self.lr_decay * self.learning_rate

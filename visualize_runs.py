@@ -27,13 +27,14 @@ def load_data_v0(log_dict):
         medians_run = []
         pop_stds_run = []
         timesteps_run = []
+        if 'test_fit' not in run_log[0]:
+            print("WARNING: Test fit not found!")
         for gen_idx, data_dict in enumerate(run_log):
             gens_run.append(data_dict['gen'])
             if 'test_fit' in data_dict:
                 fit_val = 'test_fit'
             else:
                 fit_val = 'fit_best'
-                print("WARNING: Test fit not found!")
             best_run.append(data_dict[fit_val])
             means_run.append(data_dict['fit_mean'])
             medians_run.append(data_dict['fit_med'])
@@ -173,7 +174,7 @@ if __name__ == '__main__':
 
     # Calculate the average and variance of solve time. 
     if not parser.folder_flag:
-        solve_score = 495.0
+        solve_score = 475.0
         solve_times = []
         solve_generations = []
         did_solve = 0
