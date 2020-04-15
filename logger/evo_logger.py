@@ -7,24 +7,25 @@ import json
 import numpy as np
 
 class EvoLogger(object):
+    """
+    This class helps maintain a log of the experiment. 
+    Other data types can be attached for enhanced logging features. 
+    All objects MUST be pickalbe. 
+
+    Args:
+        log_name: the name of the logs to create. 
+
+        output folder: the filepath to output the log files to. 
+
+        experiment config: I use json-style dicts to save configs. 
+            If you use something similar, you're welcome to attach it here. 
+
+        log_run:
+            if enabled, creates an intermediate log at the end of every run
+            recommended to leave off unless the run is expected to end prematurely
+    """
     def __init__(self, log_name, output_folder=None, experiment_config=None, log_run=False, use_pickle=True):
-        """
-        This class helps maintain a log of the experiment. 
-        Other data types can be attached for enhanced logging features. 
-        All objects MUST be pickalbe. 
-
-        Args:
-            log_name: the name of the logs to create. 
-
-            output folder: the filepath to output the log files to. 
-
-            experiment config: I use json-style dicts to save configs. 
-                If you use something similar, you're welcome to attach it here. 
-
-            log_run:
-                if enabled, creates an intermediate log at the end of every run
-                recommended to leave off unless the run is expected to end prematurely
-        """
+        
 
         self.output_folder = output_folder
         self.log_name = log_name

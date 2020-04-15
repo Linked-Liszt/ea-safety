@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     # Calculate the average and variance of solve time. 
     if not parser.folder_flag:
-        solve_score = 495.0
+        solve_score = 475.0
         solve_times = []
         solve_generations = []
         did_solve = 0

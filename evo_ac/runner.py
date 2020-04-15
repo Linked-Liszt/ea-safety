@@ -15,7 +15,7 @@ class EvoACRunner(object):
         self.config_exp = config['experiment']
 
         if self.config_exp['env'] == "CartPole-v1":
-            self.stop_fit = 495.0
+            self.stop_fit = 475.0
 
         self.env = gym.make(self.config_exp['env'])
         self.test_env = gym.make(self.config_exp['env'])
@@ -87,7 +87,8 @@ class EvoACRunner(object):
 
         self.evo.set_fitnesses(self.storage.fitnesses)
 
-        self.new_pop = self.evo.create_new_pop()
+        with torch.no_grad():
+            self.new_pop = self.evo.create_new_pop()
 
     def reset_experiment(self):
         obs_size = np.prod(np.shape(self.env.observation_space))
