@@ -77,7 +77,6 @@ class EvoACEvoAlg(object):
             locs = param - adjusted_grad
             mutation_amount = torch.abs(adjusted_grad) * self.mut_scale
             dist = torch.distributions.uniform.Uniform(-mutation_amount, mutation_amount)
-            print(dist.sample())
             return locs + dist.sample()
 
     
