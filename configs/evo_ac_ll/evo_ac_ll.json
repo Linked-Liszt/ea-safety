@@ -1,12 +1,14 @@
 {
     "experiment": {
-        "timesteps": 500000,
+        "timesteps": 200000,
         "num_runs": 10,
         "env": "LunarLander-v2",
         "log_name": "evo_ac_ll_test_large_lr",
         "log_run": false,
         "print_interval": 1,
-        "log_path": "checkpoints/ll"
+        "log_interval": 2000,
+        "log_path": "checkpoints/ll",
+        "test_strat": "weightedvote"
     },
 
     
@@ -17,7 +19,7 @@
         "hold_elite":true,
         "recomb_nums": [5,3,1],
         "learning_rate": [1e-5, 1e-5],
-        "mut_scale":  0.1,
+        "mut_scale":  0.0,
         "lr_decay": 0.98,
         "gamma": 0.99
 

@@ -10,7 +10,6 @@ import os
 def load_data_v0(log_dict):
     print("Loading log...")
     num_runs = len(nn_dict['experiment_log'])
-    len_runs = 500
 
     gens = []
     best = []
@@ -111,12 +110,13 @@ if __name__ == '__main__':
         bests.append(best)
         stds.append(std)    
 
-
+    if len(log_paths) == 0:
+        pass
 
 
     # Graph data
     fig, ax_h = plt.subplots(1, 1, figsize=(13,7))
-    ax_h.set_ylabel("Fitness", fontsize=15)
+    ax_h.set_ylabel("Fitness (Mean of 100 Runs)", fontsize=15)
     ax_h.set_xlabel("Timesteps", fontsize=15)
 
 
@@ -130,6 +130,6 @@ if __name__ == '__main__':
 
 
     ax_h.legend(loc='lower right', shadow=True, fontsize=14)
-    fig.suptitle("Cartpole Ablation", fontsize=25)
+    fig.suptitle("Comparison to Baseline", fontsize=25)
 
     plt.show()

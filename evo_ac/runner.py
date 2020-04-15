@@ -16,6 +16,8 @@ class EvoACRunner(object):
 
         if self.config_exp['env'] == "CartPole-v1":
             self.stop_fit = 495.0
+        elif self.config_exp['env'] == "LunarLander-v2":
+            self.stop_fit = 200.0
 
         self.env = gym.make(self.config_exp['env'])
         self.test_env = gym.make(self.config_exp['env'])
