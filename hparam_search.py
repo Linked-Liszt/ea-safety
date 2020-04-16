@@ -19,11 +19,11 @@ if __name__ == '__main__':
 
 
     for hparam_run_idx in range(300):
-        config_dict['experiment']['num_runs'] = 10
-        config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_cart"
-        config_dict['experiment']['log_name'] = f"evo_ac_cart_hparam_search_0_{hparam_run_idx}"
-        input_size = 4
-        output_size = 2
+        config_dict['experiment']['num_runs'] = 7
+        config_dict['experiment']['log_path'] = "/home/oxymoren/Desktop/EA/ea-safety/checkpoints/hparam_search_ll"
+        config_dict['experiment']['log_name'] = f"evo_ac_ll_hparam_search_1_{hparam_run_idx}"
+        input_size = 8
+        output_size = 4
 
 
         activation_function = random.choice(['ReLU', 'Tanh'])

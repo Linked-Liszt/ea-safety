@@ -29,6 +29,9 @@ class EvoACLogger(object):
         self.run_end_times = []
         self.run_end_times.append(self.start_time)
 
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
+
 
     def save_fitnesses(self, model, test_fit, fitnesses, policy_loss, value_loss, gen, timesteps):
         data_dict = {}
