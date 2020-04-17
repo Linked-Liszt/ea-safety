@@ -130,6 +130,7 @@ if __name__ == '__main__':
 
 
     ax_h.legend(loc='lower right', shadow=True, fontsize=14)
-    fig.suptitle("Comparison to Baseline", fontsize=25)
+    fig.suptitle("Baseline Comparison", fontsize=25)
 
+    plt.gca().set_ylim(top=650)
     plt.show()
