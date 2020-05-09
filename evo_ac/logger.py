@@ -29,10 +29,15 @@ class EvoACLogger(object):
         self.run_end_times = []
         self.run_end_times.append(self.start_time)
 
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
 
-    def save_fitnesses(self, model, fitnesses, policy_loss, value_loss, diversity, gen):
+
+    def save_fitnesses(self, model, test_fit, fitnesses, policy_loss, value_loss, gen, timesteps):
         data_dict = {}
         data_dict['gen'] = gen
+        data_dict['timesteps'] = timesteps
+        data_dict['test_fit'] = test_fit
         data_dict['fit'] = copy.deepcopy(fitnesses)
         data_dict['fit_best'] = np.max(fitnesses)
         data_dict['fit_mean'] = np.mean(fitnesses)
@@ -40,7 +45,6 @@ class EvoACLogger(object):
         data_dict['fit_std'] = np.std(fitnesses)
         data_dict['policy_loss'] = policy_loss
         data_dict['value_loss'] = value_loss
-        data_dict['diversity'] = diversity
         self.run_log.append(data_dict)
 
         if float(np.max(fitnesses)) > self.best_fitness:
@@ -56,7 +60,7 @@ class EvoACLogger(object):
 
     def end_experiment(self):
         self._export_data('final')
-        if self.config_exp['discord_ping']:
+        if 'discord_ping' in self.config_exp and self.config_exp['discord_ping']:
             self._send_discord_notification()
         
     def _export_data(self, export_name):
@@ -81,10 +85,11 @@ class EvoACLogger(object):
     def print_data(self, gen_idx):
         if gen_idx % self.print_interval == 0:
             data_dict = self.run_log[-1]
-            display_str = f'\n\nRun {self.run_counter}  Gen {gen_idx}\n' \
-                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']} Diversity: {data_dict['diversity']:.2e}\n" \
+            display_str = f"\n\nRun {self.run_counter}  Gen {gen_idx}  Timesteps {data_dict['timesteps']} \n" \
+                + f"Best: {data_dict['fit_best']}  Mean: {data_dict['fit_mean']}  Test: {data_dict['test_fit']}\n" \
                 + f"Policy Loss: {data_dict['policy_loss']:.2e}  Value Loss: {data_dict['value_loss']:.2e}\n" \
-                + f"Full: {data_dict['fit']}"
+                + f"Full: {data_dict['fit']}\n"\
+                + f"Experiment: {self.config_exp['log_name']}"
             print(display_str)
             
     def _send_discord_notification(self):

@@ -1,14 +1,11 @@
 import numpy as np
 import torch
 import torch.nn as nn
-# TODO: Consider refactor to functional versions
 import torch.nn.functional as F
 
 
-# TODO: Handle variable episode sizes
 class EvoACStorage(object):
-    def __init__(self, pop_size, value_coeff,
-                 entropy_coeff, reward_discount=0.99):
+    def __init__(self, pop_size, config):
         """
 
         :param max_episode_steps: number of steps after the policy gets updated
@@ -21,19 +18,25 @@ class EvoACStorage(object):
 
         self.pop_size = pop_size
 
-        self.value_coeff = value_coeff
-        self.entropy_coeff = entropy_coeff
-        self.reward_discount = reward_discount
+        self.evo_ac_config = config['evo_ac']
+
+        self.value_coeff = self.evo_ac_config['value_coeff']
+        self.entropy_coeff = self.evo_ac_config['entropy_coeff']
+
+        if 'gamma' not in config['experiment']:
+            self.reward_discount = 0.99
+        else:
+            self.reward_discount = config['experiment']['gamma']
 
         # initialize the buffers with zeros
         self.reset_storage()
 
     def reset_storage(self):
+        self.entropies = 0
         self.actions = [[] for _ in range(self.pop_size)]
         self.log_probs = [[] for _ in range(self.pop_size)]
         self.rewards = [[] for _ in range(self.pop_size)]
         self.values = [[] for _ in range(self.pop_size)]
-        self.entropies = 0
         self.fitnesses = [0] * self.pop_size
         
 
@@ -44,20 +47,12 @@ class EvoACStorage(object):
         return tensor
 
     
-    def insert(self, pop_idx, reward, action, log_prob, entropy, value):
+    def insert(self, pop_idx, reward, action, log_prob, value, entropy):
         self.rewards[pop_idx].append(reward)
         self.actions[pop_idx].append(action)
-        self.log_probs[pop_idx].append(log_prob)
         self.entropies += entropy
+        self.log_probs[pop_idx].append(log_prob)
         self.values[pop_idx].append(value)
-
-
-    def remove_eval(self, pop_idx):
-        self.rewards[pop_idx] = []
-        self.actions[pop_idx] = []
-        self.log_probs[pop_idx] = []
-        self.entropies = 0
-        self.values[pop_idx] = []
 
     def insert_fitness(self, pop_idx, fitness):
         self.fitnesses[pop_idx] = fitness
@@ -71,7 +66,6 @@ class EvoACStorage(object):
                 self.discounted_rewards[pop_idx].insert(0, reward)
     
     def get_loss(self):
-        # TODO: Double check sequencing
         self._discount_rewards()
         value_losses = []
         policy_losses = []
@@ -84,9 +78,13 @@ class EvoACStorage(object):
 
                 value_losses.append(F.smooth_l1_loss(value, torch.tensor([reward])))
 
-                policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage))
+                policy_losses.append((-self.log_probs[pop_idx][step_idx] * advantage).mean())
+
+        all_policy_loss = torch.stack(policy_losses).sum()
+        all_value_loss = torch.stack(value_losses).sum()
+
+        policy_loss_log = all_policy_loss.item()
+        value_loss_log = all_value_loss.item()
     
-        policy_loss_total = torch.stack(policy_losses).sum()
-        value_loss_total = torch.stack(value_losses).sum()
-        loss = (policy_loss_total * self.value_coeff) + value_loss_total - (self.entropy_coeff * self.entropies)
-        return loss, policy_loss_total.item(), value_loss_total.item()
+        loss = (all_policy_loss * self.value_coeff) + all_value_loss - (self.entropy_coeff * self.entropies)
+        return loss, policy_loss_log, value_loss_log

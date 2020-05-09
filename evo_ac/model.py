@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
-from torch.distributions import Normal
 
 
 class EvoACModel(nn.Module):
@@ -16,8 +15,6 @@ class EvoACModel(nn.Module):
         self.evo_config = config_dict['evo_ac']
         self.net_config = config_dict['neural_net']
         
-        self.action_space_disc = config_dict['experiment']['env_type'] == 'discrete'
-
         self._init_model_layers()
         self.opt = optim.Adam(self.parameters(), lr=self.net_config['learning_rate'])
 
@@ -40,14 +37,15 @@ class EvoACModel(nn.Module):
 
 
     def extract_params(self):
-        extracted_parameters = []
-        for individual in self.policy_nets:
-            layer_params = []
-            for layer in individual:
-                for name, parameter in layer.named_parameters():
-                    layer_params.append(parameter.detach())
-            extracted_parameters.append(layer_params)
-        return extracted_parameters
+        with torch.no_grad():
+            extracted_parameters = []
+            for individual in self.policy_nets:
+                layer_params = []
+                for layer in individual:
+                    for name, parameter in layer.named_parameters():
+                        layer_params.append(parameter.detach())
+                extracted_parameters.append(layer_params)
+            return extracted_parameters
 
 
     def insert_params(self, incoming_params):
@@ -64,14 +62,15 @@ class EvoACModel(nn.Module):
 
 
     def extract_grads(self):
-        extracted_grads = []
-        for individual in self.policy_nets:
-            layer_grads = []
-            for layer in individual:
-                for name, parameter in layer.named_parameters():
-                    layer_grads.append(parameter.grad.detach())
-            extracted_grads.append(layer_grads)
-        return extracted_grads
+        with torch.no_grad():
+            extracted_grads = []
+            for individual in self.policy_nets:
+                layer_grads = []
+                for layer in individual:
+                    for name, parameter in layer.named_parameters():
+                        layer_grads.append(parameter.grad.detach())
+                extracted_grads.append(layer_grads)
+            return extracted_grads
 
 
     def forward(self, x, pop_idx):
@@ -94,21 +93,15 @@ class EvoACModel(nn.Module):
         # 2. the value from state s_t 
         return policy, value
 
+
     def get_action(self, state, pop_idx):
         policy, value = self(state, pop_idx)
 
-        if self.action_space_disc:
-            action_prob = F.softmax(policy, dim=-1)
-            dist = Categorical(action_prob)
-            action = dist.sample()
-        else:
-            split_idx = int(policy.size()[0] / 2)
-            mus = torch.tanh(policy[:split_idx])
-            sigmas = F.softplus(policy[split_idx:])
-            dist = Normal(mus, sigmas + 0.001)
-            action = dist.sample()
+        action_prob = F.softmax(policy, dim=-1)
+        cat = Categorical(action_prob)
+        action = cat.sample()
 
-        return action.clamp(-0.999, 0.999), dist.log_prob(action), dist.entropy().mean(), value
+        return action, cat.log_prob(action), cat.entropy().mean(), value
     
 
     def _add_layer(self, layer_type, layer_params, layer_kwargs):

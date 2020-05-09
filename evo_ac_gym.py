@@ -13,4 +13,4 @@ if __name__ == '__main__':
         config_dict = json.load(config_file)
 
     runner = EvoACRunner(config_dict)
-    runner.run_experiment()
+    runner.train()

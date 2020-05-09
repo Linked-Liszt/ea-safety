@@ -1,5 +1,3 @@
 /.vscode/*
-/env_test/neat-checkpoint*
 *.pyc
-output_nets/*.p
-checkpoints/*/*.p
+results/*.p
