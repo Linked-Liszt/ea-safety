@@ -3,6 +3,7 @@ import numpy as np
 import copy
 import os
 from datetime import datetime
+import mlflow
 
 NOTIFICATION_PATH = "/home/oxymoren/Desktop/rand_utils/dm_me.sh"
 
@@ -12,6 +13,7 @@ class EvoACLogger(object):
         self.config = config
         self.config_exp = config['experiment']
         self.config_evoac = config['evo_ac']
+        self.config_nn = config['neural_net']
 
         self.directory = self.config_exp['log_path']
         self.name = self.config_exp['log_name']
@@ -31,7 +33,32 @@ class EvoACLogger(object):
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
+        
+        self.use_mlflow = False
+        if 'mlflow' in self.config_exp and self.config_exp['mlflow']:
+            mlflow.set_experiment(self.config_exp['log_name'])
+            self.use_mlflow = True
 
+    def start_run(self):
+        mlflow.start_run()
+        if self.use_mlflow:
+            self.flow_register_parameters()
+
+    def flow_register_parameters(self):
+        mlflow.log_param("pop_size", self.config_evoac['pop_size'])
+        mlflow.log_param("recomb_nums", self.config_evoac['recomb_nums'])
+        mlflow.log_param("evo_lr_low", self.config_evoac['learning_rate'][0])
+        mlflow.log_param("evo_lr_low", self.config_evoac['learning_rate'][1])
+        mlflow.log_param("nn_lr", self.config_nn['learning_rate'])
+        self.flow_extract_nn_structure()
+
+    def flow_extract_nn_structure(self):
+        networks_ids = ['shared', 'policy', 'value']
+        for network_id in networks_ids:
+            mlflow.log_param(f'{network_id}_num_layers', len(self.config_nn[network_id]))
+        
+        if 'set_size' in self.config_nn:
+            mlflow.log_param(f'hidden_sizes', self.config_nn['set_size'])
 
     def save_fitnesses(self, model, test_fit, fitnesses, policy_loss, value_loss, gen, timesteps):
         data_dict = {}
@@ -49,6 +76,13 @@ class EvoACLogger(object):
 
         if float(np.max(fitnesses)) > self.best_fitness:
             self.best_model =  copy.deepcopy(model)
+        
+        if self.use_mlflow:
+            mlflow.log_metric('test_fit', test_fit, timesteps)
+            mlflow.log_metric('fit_best', data_dict['fit_best'], timesteps)
+            mlflow.log_metric('fit_mean', data_dict['fit_mean'], timesteps)
+            mlflow.log_metric('fit_std', data_dict['fit_std'], timesteps)
+
 
     def end_run(self):
         self.experiment_log.append(self.run_log)
@@ -57,6 +91,8 @@ class EvoACLogger(object):
         if self.config_exp['log_run']:
             self._export_data(f'run_{self.run_counter:02d}')
         self.run_counter += 1
+        if self.use_mlflow:
+            mlflow.end_run()
 
     def end_experiment(self):
         self._export_data('final')

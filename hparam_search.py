@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
         arch = random.randint(0, 3)
         size_set = random.choice([[32, 64], [64, 128]])
+        config_dict['neural_net']['hidden_sizes'] = size_set
         shared = policy = value = None
         if arch == 0:
             shared = [

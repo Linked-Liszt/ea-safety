@@ -8,7 +8,8 @@
         "print_interval": 1,
         "log_interval": 2000,
         "log_path": "results/experiment_1_baseline",
-        "test_strat": "weightedvote"
+        "test_strat": "weightedvote", 
+        "mlflow": true
     },
 
     "evo_ac": {

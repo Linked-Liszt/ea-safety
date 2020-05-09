@@ -28,6 +28,7 @@ class EvoACRunner(object):
     def train(self):
         for run_idx in range(self.config_exp['num_runs']):
             self.reset_experiment()
+            self.logger.start_run()
             self.timesteps = 0
             self.stop_counter = 0
             self.last_log = -9999999
