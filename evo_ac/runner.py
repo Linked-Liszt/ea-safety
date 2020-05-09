@@ -77,7 +77,7 @@ class EvoACRunner(object):
                 if self.timesteps > self.config_exp['timesteps']:
                     break
 
-            self.logger.end_run()
+            self.logger.end_run(self.timesteps)
         self.logger.end_experiment()
 
 

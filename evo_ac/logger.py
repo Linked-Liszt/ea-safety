@@ -84,7 +84,7 @@ class EvoACLogger(object):
             mlflow.log_metric('fit_std', data_dict['fit_std'], timesteps)
 
 
-    def end_run(self):
+    def end_run(self, timesteps):
         self.experiment_log.append(self.run_log)
         self.run_log = []
         self.run_end_times.append(datetime.now())
@@ -92,6 +92,7 @@ class EvoACLogger(object):
             self._export_data(f'run_{self.run_counter:02d}')
         self.run_counter += 1
         if self.use_mlflow:
+            mlflow.log_metric('solve_timesteps', timesteps)
             mlflow.end_run()
 
     def end_experiment(self):
