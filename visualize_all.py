@@ -117,13 +117,8 @@ if __name__ == '__main__':
 
     # Graph data
     fig, ax_h = plt.subplots(1, 1, figsize=(13,7))
-    ax_h.set_ylabel("Fitness (Mean of 100 Runs)", fontsize=20)
     ax_h.set_xlabel("Timesteps", fontsize=20)
 
-
-    for path_idx, path in enumerate(plotted_log_paths):
-        print(path)
-        ax_h.plot(timesteps[path_idx], bests[path_idx], label=get_log_name(path))
         error_high = stds[path_idx] + bests[path_idx]
         error_low = (-stds[path_idx]) + bests[path_idx]
         ax_h.fill_between(timesteps[path_idx], error_low, error_high, alpha=0.2)
